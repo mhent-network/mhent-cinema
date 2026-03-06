@@ -99,7 +99,7 @@
 
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-            import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+            import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
             import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
             const firebaseConfig = {
@@ -316,10 +316,9 @@
                     const querySnapshot = await getDocs(collection(db, "movies"));
                     let myNotifMovies = [];
                     
-                    querySnapshot.forEach(doc => {
-                        // Trùng khớp ID mới cho vào mảng thông báo
-                        if (savedMovies.includes(doc.id)) {
-                            myNotifMovies.push({id: doc.id, ...doc.data()});
+                    querySnapshot.forEach(documentSnapshot => { // Đổi tên biến để tránh nhầm với doc của Firebase
+                        if (savedMovies.includes(documentSnapshot.id)) {
+                            myNotifMovies.push({id: documentSnapshot.id, ...documentSnapshot.data()});
                         }
                     });
                     
