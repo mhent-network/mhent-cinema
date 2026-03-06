@@ -141,51 +141,69 @@
             }
 
             // Theo dõi trạng thái Online/Offline
-            // --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP (BẢN FIX LỖI HIỂN THỊ) ---
             onAuthStateChanged(auth, (user) => {
                 // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
                 const ADMIN_EMAILS = [
                     "miyazakiharuto64@gmail.com", 
                     "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
                 ];
-            
                 const btnTheme = document.getElementById('btn-theme-toggle'); 
                 if (user) {
-                    // 1. Hiện Navbar User và Chuông
-                    document.getElementById('btn-login').style.display = 'none';
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
                     if(btnTheme) btnTheme.style.display = 'none'; 
-                    document.getElementById('user-profile').style.display = 'flex';
-                    document.getElementById('bell-container').style.display = 'block';
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
 
-                    // 2. Xử lý Tên hiển thị (Nếu null thì lấy phần đầu email)
+                    // Gắn Tên
                     let finalName = user.displayName || user.email.split('@')[0];
-                    document.getElementById('user-name').innerText = finalName;
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
 
-                    // 3. Xử lý Avatar (Nếu null thì lấy logo web làm mặc định)
+                    // Gắn Ảnh
                     const avtElement = document.getElementById('user-avatar');
                     if(avtElement) {
-                        avtElement.src = user.photoURL || 'assets/avt-web.jpg'; // Dùng logo web nếu ko có ảnh
-                        avtElement.style.display = 'block';
+                        if (user.photoURL) {
+                            avtElement.src = user.photoURL;
+                            avtElement.style.display = 'block'; 
+                        } else {
+                            avtElement.style.display = 'none'; 
+                        }
                     }
 
-                    // 4. Kiểm tra quyền Admin để hiện nút
+                    // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
                     const adminBtn = document.getElementById('admin-panel-btn');
                     if (adminBtn) {
-                        adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'block' : 'none';
+                        if (ADMIN_EMAILS.includes(user.email)) {
+                            adminBtn.style.display = 'flex'; // Đúng Email -> Mở khóa nút Admin
+                        } else {
+                            adminBtn.style.display = 'none'; // Sai Email -> Giấu biệt tăm
+                        }
                     }
-
-                    // 5. Load thông báo cho chuông
+                    
                     if (typeof loadNotifications === "function") loadNotifications();
 
+                    // --- BỔ SUNG: CHECK XEM PHIM NÀY ĐÃ LƯU CHƯA ĐỂ ĐỔI MÀU NÚT ---
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentMovieId = urlParams.get('id');
+                    
+                    if (currentMovieId) {
+                        getDoc(doc(db, "users", user.uid)).then((userSnap) => {
+                            if (userSnap.exists() && userSnap.data().savedMovies && userSnap.data().savedMovies.includes(currentMovieId)) {
+                                const saveBtn = document.getElementById('btn-save-movie');
+                                if (saveBtn) {
+                                    saveBtn.innerHTML = '✔️ Đã lưu';
+                                    saveBtn.style.background = '#ff85a2';
+                                    saveBtn.style.color = 'white';
+                                }
+                            }
+                        });
+                    }
                 } else {
-                    // --- CHƯA ĐĂNG NHẬP ---
-                    document.getElementById('btn-login').style.display = 'flex';
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
                     if(btnTheme) btnTheme.style.display = 'flex'; 
-                    document.getElementById('user-profile').style.display = 'none';
-                    document.getElementById('bell-container').style.display = 'none';
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'none';
                 }
             });
-
             // ==========================================
             // 2. HỆ THỐNG TẢI PHIM (Bảo vệ độc lập)
             // ==========================================
