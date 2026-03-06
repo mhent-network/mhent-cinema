@@ -151,7 +151,7 @@ body {
 }
 
 .user-name { 
-    font-weight: 800; 
+    font-weight: 500; 
     color: #1a1a2e; 
     max-width: 120px; 
     white-space: nowrap; 
