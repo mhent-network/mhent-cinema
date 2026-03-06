@@ -216,7 +216,7 @@
             // ==============================================
             document.getElementById('btn-add-movie').addEventListener('click', async () => {
                 const movieId = document.getElementById('input-id').value.trim();
-                if(!movieId) return alert("❌ Nhập ID phim!");
+                if(!movieId) return showToast("❌ Nhập ID phim!", true);
                 document.getElementById('loading-movie').style.display = 'block';
                 try {
                     await setDoc(doc(db, "movies", movieId), {
@@ -230,7 +230,7 @@
                         desc: document.getElementById('input-desc').value.trim().replace(/\n/g, "<br>"),
                         episodes: [], updatedAt: Date.now() 
                     });
-                    alert("✅ Tạo phim thành công!"); 
+                    showToast("✅ Tạo phim thành công!"); 
                     
                     // CLEAR FORM TẠO PHIM
                     document.getElementById('input-id').value = '';
@@ -244,7 +244,7 @@
                     document.getElementById('input-status').selectedIndex = 0;
                     
                     loadMovies(); // Cập nhật lại danh sách dropdown
-                } catch (error) { alert("❌ Lỗi: " + error.message); } 
+                } catch (error) { showToast("❌ Lỗi: " + error.message, true); } 
                 finally { document.getElementById('loading-movie').style.display = 'none'; }
             });
 
@@ -253,7 +253,7 @@
             // ==============================================
             document.getElementById('btn-add-episode').addEventListener('click', async () => {
                 const epMovieId = document.getElementById('ep-movie-id').value;
-                if(!epMovieId) return alert("❌ Chọn phim!");
+                if(!epMovieId) return showToast("❌ Chọn phim!", true);
                 document.getElementById('loading-episode').style.display = 'block';
                 try {
                     await updateDoc(doc(db, "movies", epMovieId), {
@@ -265,7 +265,7 @@
                         }),
                         updatedAt: Date.now() 
                     });
-                    alert("✅ Đăng tập thành công!");
+                    showToast("✅ Đăng tập thành công!");
                     
                     // CLEAR FORM ĐĂNG TẬP (Cố tình không clear epMovieId để đăng tiếp tập khác cho nhanh)
                     document.getElementById('ep-title').value = '';
@@ -273,7 +273,7 @@
                     document.getElementById('ep-dp1').value = '';
                     document.getElementById('ep-dp2').value = '';
 
-                } catch (error) { alert("❌ Lỗi!"); } 
+                } catch (error) { showToast("❌ Lỗi: " + error.message, true); } 
                 finally { document.getElementById('loading-episode').style.display = 'none'; }
             });
 
@@ -318,7 +318,7 @@
                             sectionEp.style.display = 'none';
                         }
                     }
-                } catch (error) { alert("Lỗi tải dữ liệu!"); }
+                } catch (error) { showToast("Lỗi tải dữ liệu!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             };
 
@@ -338,8 +338,8 @@
                         desc: document.getElementById('edit-desc').value.trim().replace(/\n/g, "<br>"),
                         updatedAt: Date.now()
                     });
-                    alert("✅ Đã cập nhật xong thông tin Phim!");
-                } catch (error) { alert("❌ Lỗi cập nhật!"); }
+                    showToast("✅ Đã cập nhật xong thông tin Phim!");
+                } catch (error) { showToast("❌ Lỗi cập nhật!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             });
 
@@ -362,7 +362,7 @@
             document.getElementById('btn-update-episode').addEventListener('click', async () => {
                 const movieId = document.getElementById('edit-movie-id').value;
                 const index = document.getElementById('edit-ep-index').value;
-                if(!movieId || index === "") return alert("Chưa chọn tập!");
+                if(!movieId || index === "") return showToast("Chưa chọn tập!", true);
                 
                 document.getElementById('loading-edit').style.display = 'block';
                 try {
@@ -377,8 +377,8 @@
                         episodes: window.currentEditMovieData.episodes,
                         updatedAt: Date.now()
                     });
-                    alert("✅ Đã cập nhật xong link Tập phim!");
-                } catch (error) { alert("❌ Lỗi cập nhật tập!"); }
+                    showToast("✅ Đã cập nhật xong link Tập phim!");
+                } catch (error) { showToast("❌ Lỗi cập nhật tập!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             });
 
