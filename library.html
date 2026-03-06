@@ -368,18 +368,49 @@
                 }
             });
 
+            // ==========================================
+            // 🔔 HÀM TẢI THÔNG BÁO CÁ NHÂN HÓA (CHỈ PHIM ĐÃ LƯU)
+            // ==========================================
             window.loadNotifications = async function() {
                 const notifList = document.getElementById('notif-list');
                 if(!notifList) return; 
+                
+                const user = auth.currentUser;
+                if (!user) {
+                    notifList.innerHTML = '<p style="padding:15px; color:#888; text-align:center;">Đăng nhập để nhận thông báo phim nhé!</p>';
+                    return;
+                }
+
                 try {
+                    // 1. Chạy vào thư viện xem User này đã lưu những phim nào
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+                    const savedMovies = (userSnap.exists() && userSnap.data().savedMovies) ? userSnap.data().savedMovies : [];
+
+                    // Nếu chưa lưu phim nào thì dỗ ngọt người ta ra lưu phim
+                    if (savedMovies.length === 0) {
+                        notifList.innerHTML = '<p style="padding:15px; color:#888; text-align:center; font-size:13px;">Cậu chưa lưu phim nào. Hãy thêm vào Thư viện để tớ báo cho cậu khi có tập mới nha! ⭐</p>';
+                        return;
+                    }
+
+                    // 2. Lấy dữ liệu phim và CHỈ lọc ra những phim có trong danh sách đã lưu
                     const querySnapshot = await getDocs(collection(db, "movies"));
-                    let movies = [];
-                    querySnapshot.forEach(doc => movies.push({id: doc.id, ...doc.data()}));
+                    let myNotifMovies = [];
                     
-                    movies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+                    querySnapshot.forEach(doc => {
+                        // Trùng khớp ID mới cho vào mảng thông báo
+                        if (savedMovies.includes(doc.id)) {
+                            myNotifMovies.push({id: doc.id, ...doc.data()});
+                        }
+                    });
+                    
+                    // 3. Sắp xếp lại: Phim nào mới up tập gần đây nhất thì cho lên đầu
+                    myNotifMovies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
                     notifList.innerHTML = '';
-                    movies.slice(0, 5).forEach(movie => {
+                    
+                    // 4. In ra tối đa 5 thông báo mới nhất
+                    myNotifMovies.slice(0, 5).forEach(movie => {
                         const lastEp = movie.episodes && movie.episodes.length > 0 
                                     ? movie.episodes[movie.episodes.length - 1].title 
                                     : "Vừa cập nhật hồ sơ mới!";
@@ -395,7 +426,11 @@
                         `;
                         notifList.innerHTML += item;
                     });
-                } catch (e) { notifList.innerHTML = '<p style="padding:10px;">Chưa có thông báo nào...</p>'; }
+
+                } catch (e) { 
+                    console.error("Lỗi tải thông báo:", e);
+                    notifList.innerHTML = '<p style="padding:15px; color:#ff4d4d; text-align:center;">Lỗi kết nối vệ tinh...</p>'; 
+                }
             };
 
             // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
