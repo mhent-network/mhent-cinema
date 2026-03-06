@@ -1006,6 +1006,31 @@ body {
     background: #ff85a2 !important; 
 }
 
+/* HIỆU ỨNG TẮT ĐÈN (CINEMA MODE) */
+.cinema-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95); /* Đen tuyền 95% */
+    z-index: 9990; /* Nằm dưới thanh Navbar nhưng trên mọi thứ khác */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+    pointer-events: none;
+}
+
+.cinema-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Nhấc bổng khu vực xem phim lên trên lớp rèm đen */
+.video-box.lights-off {
+    position: relative;
+    z-index: 9995; 
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); /* Tỏa hào quang đen ngầu */
+}
+
 /* =========================================
    5. VỀ CHÚNG TỚ (ABOUT PAGE)
    ========================================= */
@@ -1554,6 +1579,14 @@ body.dark-mode .btn-back {
 body.dark-mode .btn-back:hover { 
     background: #ff85a2; 
     color: #fff; 
+}
+
+/* --- Cứu vớt chữ Navbar khi tắt đèn --- */
+body.dark-mode .nav-links a { 
+    color: #e0e0e0; /* Trắng xám sang trọng */
+}
+body.dark-mode .nav-links a:hover { 
+    color: #ff85a2; /* Hover vẫn giữ màu hồng thương hiệu */
 }
 
 /* Màu nút theme độc lập khi tắt đèn */

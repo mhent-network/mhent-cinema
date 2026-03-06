@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     </head>
     <body class="gradient-bg">
+        <div id="cinema-overlay" class="cinema-overlay" onclick="toggleCinemaMode()"></div>
 
         <div id="loading-overlay" class="loading-overlay">
             <div id="loading-spinner" class="spinner"></div>
@@ -53,7 +54,7 @@
                         <div class="cinema-tools">
                             <div class="tools-top">
                                 <span style="font-weight: bold; color: #888;">MHEnt. - Hệ thống:</span>
-                                <button id="btn-dark-mode" class="tool-btn" onclick="toggleDarkMode()">💡 Tắt đèn</button>
+                                <button id="btn-dark-mode" class="tool-btn" onclick="toggleCinemaMode()">💡 Tắt đèn</button>
                             </div>
                             
                             <div class="server-list-mini">
@@ -286,13 +287,22 @@
                 }
             };
 
-            window.toggleDarkMode = function() { 
-                document.body.classList.toggle('dark-mode'); 
-                const btnDarkMode = document.getElementById('btn-dark-mode');
-                if (document.body.classList.contains('dark-mode')) {
-                    btnDarkMode.innerText = "💡 Bật đèn";
-                } else {
-                    btnDarkMode.innerText = "💡 Tắt đèn";
+            // === HÀM TẮT/BẬT ĐÈN XEM PHIM (CINEMA MODE) ===
+            window.toggleCinemaMode = function() {
+                const overlay = document.getElementById('cinema-overlay');
+                const videoBox = document.querySelector('.video-box'); // Nhấc nguyên cụm video & tools lên
+                const lightBtn = document.getElementById('btn-light-toggle');
+
+                if(overlay && videoBox) {
+                    overlay.classList.toggle('active');
+                    videoBox.classList.toggle('lights-off');
+
+                    // Đổi text của nút cho xịn
+                    if(overlay.classList.contains('active')) {
+                        if(lightBtn) lightBtn.innerHTML = '💡 Bật đèn';
+                    } else {
+                        if(lightBtn) lightBtn.innerHTML = '💡 Tắt đèn';
+                    }
                 }
             };
 
