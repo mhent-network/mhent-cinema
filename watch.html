@@ -295,7 +295,9 @@
                     
                     player.src = finalLink; 
                     epTitle.innerText = tapPhim.title;
-                    document.title = `Đang xem ${tapPhim.title.split(':')[0]} - MHEnt. Cinema`;
+                    const epName = tapPhim.title.split(':')[0]; // Lấy ra "Tập X"
+                    const movieName = window.currentMovieData.title; // Lấy ra "Tên Phim"
+                    document.title = `Đang xem ${epName} - ${movieName} - MHEnt. Cinema`;
                     
                     if (window.currentMovieData.type === 'series') {
                         const allBtns = document.querySelectorAll('.ep-btn-custom');
