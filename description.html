@@ -373,13 +373,13 @@
             });
 
             // ==========================================
-            // 🔔 HỆ THỐNG THÔNG BÁO V3 (CÓ TRÍ NHỚ ĐÃ ĐỌC/CHƯA ĐỌC)
+            // 🔔 HỆ THỐNG THÔNG BÁO V4 (ĐIỀU HƯỚNG THÔNG MINH)
             // ==========================================
-            window.currentLoadedNotifs = []; // Biến lưu tạm danh sách phim
+            window.currentLoadedNotifs = [];
 
             window.loadNotifications = async function() {
                 const notifList = document.getElementById('notif-list');
-                const dot = document.querySelector('.notif-dot'); // Tìm cái chấm đỏ
+                const dot = document.querySelector('.notif-dot'); 
                 if(!notifList) return; 
                 
                 const user = auth.currentUser;
@@ -389,7 +389,6 @@
                 }
 
                 try {
-                    // 1. Lấy dữ liệu Thư viện và Phim
                     const userRef = doc(db, "users", user.uid);
                     const userSnap = await getDoc(userRef);
                     const savedMovies = (userSnap.exists() && userSnap.data().savedMovies) ? userSnap.data().savedMovies : [];
@@ -410,69 +409,62 @@
                     });
                     
                     myNotifMovies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-                    window.currentLoadedNotifs = myNotifMovies; // Lưu lại để dùng cho nút "Đánh dấu tất cả"
+                    window.currentLoadedNotifs = myNotifMovies; 
 
-                    // 2. Kiểm tra trí nhớ xem cái nào đã đọc
                     let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
                     let hasUnread = false;
                     notifList.innerHTML = '';
                     
-                    // 3. In ra đúng 5 thông báo trên Dropdown
                     myNotifMovies.slice(0, 5).forEach(movie => {
-                        const lastEp = movie.episodes && movie.episodes.length > 0 
-                                    ? movie.episodes[movie.episodes.length - 1].title 
-                                    : "Vừa cập nhật hồ sơ mới!";
+                        // --- LOGIC ĐIỀU HƯỚNG THÔNG MINH NẰM Ở ĐÂY ---
+                        const hasEpisodes = movie.episodes && movie.episodes.length > 0;
+                        const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
+                        const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
                         
-                        // Logic kiểm tra Đã đọc / Chưa đọc
+                        // Nếu có tập -> Bắn sang Watch. Nếu không có tập -> Bắn sang Description
+                        const targetUrl = hasEpisodes 
+                            ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` 
+                            : `description.html?id=${movie.id}`;
+                        // ---------------------------------------------
+
                         let movieTime = movie.updatedAt || 0;
                         let isUnread = false;
                         if (!readHistory[movie.id] || readHistory[movie.id] < movieTime) {
                             isUnread = true;
-                            hasUnread = true; // Báo hiệu là có ít nhất 1 cái chưa đọc
+                            hasUnread = true; 
                         }
 
-                        // Gắn class 'unread' nếu chưa đọc
                         const itemClass = isUnread ? "notif-item unread" : "notif-item";
 
-                        // Thay vì dùng a href, gọi hàm markAsReadAndGo để lưu trí nhớ rồi mới chuyển trang
+                        // Truyền thẳng cái link targetUrl vào hàm
                         const item = `
-                            <div class="${itemClass}" onclick="markAsReadAndGo('${movie.id}', ${movieTime})">
+                            <div class="${itemClass}" onclick="markAsReadAndGo('${movie.id}', ${movieTime}, '${targetUrl}')">
                                 <img src="${movie.poster}" class="notif-poster">
                                 <div class="notif-info">
                                     <div class="notif-title">${movie.title}</div>
-                                    <div class="notif-desc">🎬 ${lastEp}<br>Bấm để xem ngay!</div>
+                                    <div class="notif-desc">🎬 ${lastEpTitle}<br>Bấm để xem ngay!</div>
                                 </div>
                             </div>
                         `;
                         notifList.innerHTML += item;
                     });
 
-                    // 4. Quyết định bật tắt chấm đỏ
-                    if (dot) {
-                        dot.style.display = hasUnread ? 'block' : 'none';
-                    }
-
-                    // Sửa link nút Xem tất cả
-                    const btnViewAll = document.querySelector('.btn-view-all');
-                    if (btnViewAll) {
-                        btnViewAll.onclick = () => window.location.href = 'notification.html';
-                    }
+                    if (dot) dot.style.display = hasUnread ? 'block' : 'none';
 
                 } catch (e) { console.error("Lỗi:", e); }
             };
 
-            // Hàm: Khi bấm vào thông báo -> Đánh dấu đã đọc -> Chuyển trang
-            window.markAsReadAndGo = function(movieId, movieTime) {
+            // Hàm cập nhật trí nhớ và bay tới link tương ứng
+            window.markAsReadAndGo = function(movieId, movieTime, targetUrl) {
                 const user = auth.currentUser;
                 if(user) {
                     let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-                    readHistory[movieId] = movieTime; // Cập nhật thời gian
+                    readHistory[movieId] = movieTime; 
                     localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
                 }
-                window.location.href = 'description.html?id=' + movieId;
+                window.location.href = targetUrl; // Chạy theo link thông minh
             };
 
-            // Hàm: Đánh dấu tất cả là đã đọc (Gắn cái này vào nút "Đánh dấu tất cả" trên HTML)
             window.markAllAsRead = function() {
                 const user = auth.currentUser;
                 if(!user || !window.currentLoadedNotifs) return;
@@ -483,7 +475,6 @@
                 });
                 localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
 
-                // Cập nhật giao diện ngay lập tức
                 document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
                 const dot = document.querySelector('.notif-dot');
                 if(dot) dot.style.display = 'none';

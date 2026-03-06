@@ -234,19 +234,26 @@
             let pageItems = allNotifs.slice(startIndex, endIndex);
 
             pageItems.forEach(movie => {
-                const lastEp = movie.episodes && movie.episodes.length > 0 ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
+                // --- LOGIC ĐIỀU HƯỚNG THÔNG MINH ---
+                const hasEpisodes = movie.episodes && movie.episodes.length > 0;
+                const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
+                const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
+                
+                const targetUrl = hasEpisodes 
+                    ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` 
+                    : `description.html?id=${movie.id}`;
+                // ------------------------------------
+
                 let movieTime = movie.updatedAt || 0;
                 let isUnread = (!readHistory[movie.id] || readHistory[movie.id] < movieTime);
-                
-                // Thêm class 'unread' (nền hồng) nếu chưa đọc
                 const itemClass = isUnread ? "full-notif-item unread notif-item" : "full-notif-item notif-item";
 
                 const item = `
-                    <div class="${itemClass}" onclick="markAsReadAndGoFull('${movie.id}', ${movieTime})">
+                    <div class="${itemClass}" onclick="markAsReadAndGoFull('${movie.id}', ${movieTime}, '${targetUrl}')">
                         <img src="${movie.poster}" class="notif-poster">
                         <div>
                             <div class="notif-title">${movie.title}</div>
-                            <div class="notif-desc">🎬 ${lastEp} <br> <span style="font-size:12px; color:#ff85a2; font-style:italic;">Bấm để xem ngay!</span></div>
+                            <div class="notif-desc">🎬 ${lastEpTitle} <br> <span style="font-size:12px; color:#ff85a2; font-style:italic;">Bấm để xem ngay!</span></div>
                         </div>
                     </div>
                 `;
@@ -259,18 +266,13 @@
             document.getElementById('btn-next').disabled = currentPage === maxPage || pageItems.length === 0;
         }
 
-        window.changePage = function(step) {
-            currentPage += step;
-            renderPage();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.markAsReadAndGoFull = function(movieId, movieTime) {
+        // Nhận targetUrl và điều hướng
+        window.markAsReadAndGoFull = function(movieId, movieTime, targetUrl) {
             const user = auth.currentUser;
             let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
             readHistory[movieId] = movieTime;
             localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
-            window.location.href = 'description.html?id=' + movieId;
+            window.location.href = targetUrl;
         };
 
         window.markAllAsReadFull = function() {
