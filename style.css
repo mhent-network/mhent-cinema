@@ -568,9 +568,10 @@ body {
    ========================================= */
 
 .back-btn-wrapper { 
-    max-width: 1000px; 
+    max-width: 1150px; /* Tăng từ 1000px lên 1150px */
+    width: 90%; /* Bùa chú co giãn màn hình */
     margin: 110px auto -30px; 
-    padding: 0 20px; 
+    padding: 0; 
     position: relative; 
     z-index: 10; 
 }
@@ -594,24 +595,33 @@ body {
     transform: translateX(-5px); 
 }
 
+/* Kéo giãn Box thông tin và cho nó linh hoạt */
 .details-container { 
     display: flex; 
     gap: 40px; 
-    max-width: 900px; 
+    max-width: 1150px; /* Tăng từ 900px lên 1150px (Rộng rãi như Yuri Garden) */
+    width: 90%; /* Bùa chú co giãn khi Zoom */
     margin: 50px auto; 
     background: white; 
-    padding: 30px; 
+    padding: 35px 40px; /* Tăng padding cho thoáng */
     border-radius: 20px; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
     align-items: flex-start; 
 }
 
+/* Ép poster nhỏ lại một xíu xiu cho cân đối */
 .poster-big { 
-    width: 300px; 
+    width: 280px; /* Thu từ 300px xuống 280px */
     height: auto; 
     object-fit: contain; 
     border-radius: 15px; 
     box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
+}
+
+/* Đảm bảo khung chữ tự động chiếm hết chỗ trống còn lại */
+.info-box {
+    flex: 1;
+    min-width: 0; /* Tránh bị tràn box */
 }
 
 .info-box h1 { 
