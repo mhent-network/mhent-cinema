@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Đang tải thông tin phim... - MHEnt. Cinema</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/jpeg" href="assets/icon-web.png">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+        </head>
+    <body class="gradient-bg">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a onclick="window.location.href='index.html'" style="cursor: pointer;">
+                    <img src="assets/avt-web.jpg" alt="Avatar Web" class="avt-img">
+                    <span class="logo-name">MHEnt. - Cinema</span>
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="window.location.href='index.html'" style="cursor: pointer;">Trang chủ</a></li>
+                <li><a onclick="window.location.href='index.html#phim-dang-chieu'" style="cursor: pointer;">Danh sách Phim</a></li>
+                <li><a onclick="window.location.href='about.html'" style="cursor: pointer;">Về chúng tớ</a></li>
+            </ul>
+        </nav>
+
+        <div class="back-btn-wrapper">
+            <a onclick="window.location.href='index.html'" style="cursor: pointer;" class="btn-back">⬅ Quay lại Trang chủ</a>
+        </div>
+
+        <div class="details-container">
+            <img id="movie-poster" src="" alt="Poster" class="poster-big">
+            
+            <div class="info-box">
+                <span id="movie-tag" class="tag">Đang tải...</span><br><br>
+                <h1 id="movie-title">Đang kết nối vệ tinh...</h1>
+                <p><strong>Tên khác:</strong><br> <span id="movie-alt-title">Đang tải...</span></p>
+                <p><strong>Tình trạng:</strong> <span id="movie-status">Đang tải...</span></p>
+                <p><strong>Bản dịch:</strong> <span id="movie-translator">Team Subtitle - MHEnt</span></p>
+
+                <p class="description">
+                    <strong>Mô tả:</strong><br>
+                    <span id="movie-desc">Đang tải mô tả chi tiết của phim...</span>
+                </p>
+                
+                <div class="btn-group" id="action-buttons">
+                    <a id="btn-watch-main" class="btn-watch" style="cursor: pointer;">▶ Vào Rạp Xem Phim</a>
+                    <a id="btn-continue-watch" class="btn-continue" style="display: none; cursor: pointer;">▶ Xem tiếp phim</a>
+                    <button id="btn-trailer" class="btn-trailer" onclick="openTrailer()" style="display: none;">🎬 Xem Trailer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="trailerModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeTrailer()">&times;</span>
+                <iframe id="trailerIframe" src="" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <button id="btn-back-to-top" title="Lên đầu trang">⬆</button>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>©2026 Miyazaki Haruto Entertainment Co., Ltd.</p>
+                <div class="footer-social">
+                    <a onclick="window.location.href='https://www.facebook.com/mharuto.entertainment/'" style="cursor: pointer;" target="_blank" class="footer-link">📘 Fanpage MHEnt.</a>
+                    <span class="footer-dot">•</span>
+                    <a onclick="window.location.href='https://www.facebook.com/groups/mhent.cinema'" style="cursor: pointer;" target="_blank" class="footer-link">🍿 Rạp phim Facebook</a>
+                </div>
+            </div>
+        </footer>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+            import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAticyRN5vynyWshwGZUn6u6Oj-JfR9Vds",
+                authDomain: "mhent-cinema.firebaseapp.com",
+                projectId: "mhent-cinema",
+                storageBucket: "mhent-cinema.firebasestorage.app",
+                messagingSenderId: "603929989829",
+                appId: "1:603929989829:web:98eac7f48e7ad6fc4e96ac"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // Biến toàn cục chứa link trailer
+            window.currentTrailerLink = "";
+
+            document.addEventListener("DOMContentLoaded", async function() {
+                // 1. Soi "mã vé" trên URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const movieId = urlParams.get('id');
+
+                if (movieId) {
+                    try {
+                        // Lên Mây lấy đúng 1 bộ phim về
+                        const docSnap = await getDoc(doc(db, "movies", movieId));
+                        
+                        if (docSnap.exists()) {
+                            const movieInfo = docSnap.data();
+
+                            // 2. Bơm dữ liệu vào Giao diện
+                            document.title = movieInfo.title + " - MHEnt. Cinema";
+                            document.getElementById('movie-poster').src = movieInfo.poster || '';
+                            document.getElementById('movie-title').innerHTML = movieInfo.title || '';
+                            document.getElementById('movie-tag').innerHTML = movieInfo.tag || '';
+                            document.getElementById('movie-alt-title').innerHTML = movieInfo.altTitle || '';
+                            document.getElementById('movie-status').innerHTML = movieInfo.status || '';
+                            document.getElementById('movie-desc').innerHTML = movieInfo.desc || '';
+
+                            // 3. Xử lý Trailer
+                            if (movieInfo.trailer) {
+                                window.currentTrailerLink = movieInfo.trailer;
+                                document.getElementById('btn-trailer').style.display = 'inline-flex';
+                            }
+
+                            // 4. Xử lý Nút Bấm & Trí Nhớ
+                            let mainBtn = document.getElementById('btn-watch-main');
+                            let continueBtn = document.getElementById('btn-continue-watch');
+                            
+                            if (movieInfo.type === 'series') {
+                                let localKey = 'mhent_' + movieId + '_last_ep';
+                                let lastEpIndex = localStorage.getItem(localKey);
+
+                                mainBtn.onclick = function() {
+                                    localStorage.setItem(localKey, 0); 
+                                    window.location.href = 'watch.html?id=' + movieId;
+                                };
+
+                                if (lastEpIndex !== null) {
+                                    let epNumber = parseInt(lastEpIndex) + 1;
+                                    mainBtn.innerHTML = '▶ Xem từ đầu';
+                                    continueBtn.innerHTML = '▶ Tiếp tục xem Tập ' + epNumber;
+                                    continueBtn.href = 'watch.html?id=' + movieId;
+                                    continueBtn.style.display = 'inline-flex';
+                                } else {
+                                    mainBtn.href = 'watch.html?id=' + movieId;
+                                    mainBtn.onclick = null; 
+                                }
+                            } else {
+                                mainBtn.href = 'watch.html?id=' + movieId;
+                            }
+                        } else {
+                            document.getElementById('movie-title').innerText = "❌ Phim chưa được cập nhật!";
+                            document.getElementById('action-buttons').style.display = 'none';
+                        }
+                    } catch (error) {
+                        console.error("Lỗi:", error);
+                        document.getElementById('movie-title').innerText = "❌ Lỗi kết nối Mây!";
+                    }
+                } else {
+                    document.getElementById('movie-title').innerText = "❌ Không tìm thấy mã phim!";
+                    document.getElementById('action-buttons').style.display = 'none';
+                }
+            });
+
+            // HỆ THỐNG TRAILER
+            var modal = document.getElementById('trailerModal');
+            var iframe = document.getElementById('trailerIframe');
+
+            window.openTrailer = function() {
+                modal.style.display = 'flex';
+                iframe.src = window.currentTrailerLink; 
+            };
+
+            window.closeTrailer = function() {
+                modal.style.display = 'none';
+                iframe.src = ""; 
+            };
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape" && modal.style.display === 'flex') {
+                    window.closeTrailer();
+                }
+            });
+
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    window.closeTrailer();
+                }
+            };
+
+            // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
+            if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+            window.scrollTo(0, 0);
+
+            const backToTopBtn = document.getElementById("btn-back-to-top");
+            if (backToTopBtn) { 
+                window.addEventListener("scroll", () => {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopBtn.style.display = "block";
+                    } else {
+                        backToTopBtn.style.display = "none";
+                    }
+                });
+                backToTopBtn.addEventListener("click", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault(); return false;
+                }
+            });
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        </script>
+    </body>
+</html>

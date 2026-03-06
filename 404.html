@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>404 - Không tìm thấy phim!</title>
+        <link rel="stylesheet" href="/mhent-cinema/style.css"> <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+        <style>
+            body { text-align: center; padding-top: 150px; background-color: #f9f9f9; }
+            h1 { font-size: 80px; color: #ff85a2; margin: 0; }
+            p { font-size: 18px; color: #555; margin-bottom: 30px; }
+            .btn-home { background: #ff85a2; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; }
+            .btn-home:hover { background: #ff5c8a; }
+        </style>
+    </head>
+    <body class="gradient-bg">
+        <h1>404</h1>
+        <p>Ối chà! Có vẽ như bạn đã du hành nhầm dòng thời gian rồi...<br>Trang bạn tìm không tồn tại hoặc đã biến mất!</p>
+        <a onclick="window.location.href='/mhent-cinema/index.html'" style="cursor: pointer;" class="btn-home">⬅ Về lại Trang Chủ</a>
+
+        <script>
+            // 🛑 BÙA CHÚ CẤM TRÌNH DUYỆT TỰ ĐỘNG CUỘN TRANG
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual'; // Tắt tính năng tự cuộn của Chrome
+            }
+            // Ép trang web luôn bắt đầu từ tọa độ (0, 0) - Tức là trên cùng màn hình
+            window.scrollTo(0, 0);
+            
+            // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            document.addEventListener('keydown', function(e) {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+                (e.ctrlKey && e.key === 'U')
+            ) {
+                e.preventDefault();
+                return false;
+            }
+            });
+
+            // Chặn menu chuột phải
+            document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            });
+        </script>
+    </body>
+</html>

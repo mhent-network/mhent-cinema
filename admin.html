@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MHEnt. - Admin Panel V5</title>
+        <style>
+            body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: white; padding: 20px; }
+            .admin-container { max-width: 600px; margin: 0 auto; background: #16213e; padding: 30px; border-radius: 10px; border: 2px solid #ff85a2; box-shadow: 0 0 15px rgba(255, 133, 162, 0.3); }
+            h1 { color: #ff85a2; text-align: center; margin-bottom: 20px; }
+            
+            /* GIAO DIỆN CHUYỂN TAB */
+            .tab-container { display: flex; margin-bottom: 25px; border-radius: 8px; overflow: hidden; border: 1px solid #ff85a2; }
+            .tab-btn { flex: 1; padding: 12px; background: #1a1a2e; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; }
+            .tab-btn.active { background: #ff85a2; color: #1a1a2e; }
+            .tab-content { display: none; animation: fadeIn 0.4s; }
+            .tab-content.active { display: block; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+            .form-group { margin-bottom: 15px; }
+            label { display: block; margin-bottom: 5px; font-weight: bold; color: #e94560; }
+            input, select, textarea { width: 100%; padding: 10px; border-radius: 5px; border: none; outline: none; box-sizing: border-box; background: #0f3460; color: white; }
+            
+            .btn-publish { width: 100%; padding: 15px; background: #e94560; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+            .btn-publish:hover { background: #ff85a2; }
+            .btn-episode { background: #00ffcc; color: #1a1a2e; }
+            .btn-episode:hover { background: #7fffd4; }
+            .btn-edit { background: #ffb703; color: #1a1a2e; }
+            .btn-edit:hover { background: #ffc300; }
+            
+            .loading { display: none; text-align: center; color: #00ffcc; font-weight: bold; margin-top: 15px; }
+            .two-col { display: flex; gap: 15px; }
+            .two-col .form-group { flex: 1; }
+            .edit-section { border: 1px dashed #ff85a2; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+            .edit-title { color: #ffb703; font-size: 18px; margin-top: 0; }
+        </style>
+    </head>
+    <body>
+        <div class="admin-container">
+            <h1>🛠️ TRUNG TÂM ĐIỀU KHIỂN</h1>
+
+            <div class="tab-container">
+                <button id="btn-tab-movie" class="tab-btn active">🎬 TẠO MỚI</button>
+                <button id="btn-tab-episode" class="tab-btn">📺 ĐĂNG TẬP</button>
+                <button id="btn-tab-edit" class="tab-btn">✏️ SỬA DATA</button>
+            </div>
+            
+            <div id="tab-movie" class="tab-content active">
+                <div class="two-col">
+                    <div class="form-group">
+                        <label>Loại phim:</label>
+                        <select id="input-type">
+                            <option value="series">Phim Bộ (Nhiều tập)</option>
+                            <option value="movie">Phim Lẻ (1 tập Full)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái:</label>
+                        <select id="input-status">
+                            <option value="Đang tiến hành">Đang tiến hành</option>
+                            <option value="Đã hoàn thành">Đã hoàn thành</option>
+                            <option value="Sắp chiếu">Sắp chiếu</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>ID Phim (Viết liền không dấu):</label><input type="text" id="input-id"></div>
+                <div class="form-group"><label>Tên Phim hiển thị:</label><input type="text" id="input-title"></div>
+                <div class="form-group"><label>Tên thay thế (AltTitle):</label><textarea id="input-alttitle" rows="2"></textarea></div>
+                <div class="form-group"><label>Thể loại (Tag):</label><input type="text" id="input-tag"></div>
+                <div class="form-group"><label>Link ảnh Poster:</label><input type="text" id="input-poster-text"></div>
+                <div class="form-group"><label>Link Trailer (Iframe):</label><input type="text" id="input-trailer"></div>
+                <div class="form-group"><label>Mô tả nội dung:</label><textarea id="input-desc" rows="4"></textarea></div>
+                
+                <button id="btn-add-movie" class="btn-publish">🚀 TẠO PHIM LÊN MÂY</button>
+                <p id="loading-movie" class="loading">⏳ Đang tạo phim...</p>
+            </div>
+
+            <div id="tab-episode" class="tab-content">
+                <div class="form-group">
+                    <label>Chọn Phim (Tự động lấy từ Mây):</label>
+                    <select id="ep-movie-id" class="dropdown-movies"><option value="">⏳ Đang tải...</option></select>
+                </div>
+                <div class="form-group"><label>Tên Tập Phim:</label><input type="text" id="ep-title"></div>
+                <div class="form-group"><label>Nguồn Chính (VIP):</label><input type="text" id="ep-vip"></div>
+                <div class="form-group"><label>Nguồn Dự Phòng 1 (DP1):</label><input type="text" id="ep-dp1"></div>
+                <div class="form-group"><label>Nguồn Dự Phòng 2 (DP2):</label><input type="text" id="ep-dp2"></div>
+
+                <button id="btn-add-episode" class="btn-publish btn-episode">⚡ BẮN TẬP PHIM LÊN MÂY</button>
+                <p id="loading-episode" class="loading">⏳ Đang truyền tải dữ liệu...</p>
+            </div>
+
+            <div id="tab-edit" class="tab-content">
+                <div class="form-group">
+                    <label>1. CHỌN PHIM CẦN SỬA:</label>
+                    <select id="edit-movie-id" class="dropdown-movies" onchange="fetchMovieDataToEdit()">
+                        <option value="">⏳ Đang tải...</option>
+                    </select>
+                </div>
+
+                <div class="edit-section" id="edit-movie-section" style="display: none;">
+                    <h3 class="edit-title">📌 SỬA THÔNG TIN PHIM</h3>
+                    <div class="two-col">
+                        <div class="form-group"><label>Loại phim:</label><select id="edit-type"><option value="series">Phim Bộ</option><option value="movie">Phim Lẻ</option></select></div>
+                        <div class="form-group"><label>Trạng thái:</label><select id="edit-status"><option value="Đang tiến hành">Đang tiến hành</option><option value="Đã hoàn thành">Đã hoàn thành</option><option value="Sắp chiếu">Sắp chiếu</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Tên Phim:</label><input type="text" id="edit-title"></div>
+                    <div class="form-group"><label>Tên thay thế (AltTitle):</label><textarea id="edit-alttitle" rows="2"></textarea></div>
+                    <div class="form-group"><label>Thể loại (Tag):</label><input type="text" id="edit-tag"></div>
+                    <div class="form-group"><label>Link ảnh Poster:</label><input type="text" id="edit-poster"></div>
+                    <div class="form-group"><label>Link Trailer:</label><input type="text" id="edit-trailer"></div>
+                    <div class="form-group"><label>Mô tả nội dung:</label><textarea id="edit-desc" rows="4"></textarea></div>
+                    <button id="btn-update-movie" class="btn-publish btn-edit">💾 CẬP NHẬT THÔNG TIN PHIM</button>
+                </div>
+
+                <div class="edit-section" id="edit-episode-section" style="display: none;">
+                    <h3 class="edit-title">📌 SỬA THÔNG TIN TẬP PHIM</h3>
+                    <div class="form-group">
+                        <label>Chọn tập cần sửa:</label>
+                        <select id="edit-ep-index" onchange="fetchEpisodeDataToEdit()">
+                            <option value="">-- Chọn tập --</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Tên Tập Phim:</label><input type="text" id="edit-ep-title"></div>
+                    <div class="form-group"><label>Nguồn Chính (VIP):</label><input type="text" id="edit-ep-vip"></div>
+                    <div class="form-group"><label>Nguồn Dự Phòng 1:</label><input type="text" id="edit-ep-dp1"></div>
+                    <div class="form-group"><label>Nguồn Dự Phòng 2:</label><input type="text" id="edit-ep-dp2"></div>
+                    <button id="btn-update-episode" class="btn-publish btn-edit" style="background: #e94560; color:white;">💾 CẬP NHẬT LINK TẬP PHIM</button>
+                </div>
+
+                <p id="loading-edit" class="loading">⏳ Đang xử lý dữ liệu Mây...</p>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+            import { getFirestore, doc, setDoc, updateDoc, arrayUnion, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAticyRN5vynyWshwGZUn6u6Oj-JfR9Vds",
+                authDomain: "mhent-cinema.firebaseapp.com",
+                projectId: "mhent-cinema",
+                storageBucket: "mhent-cinema.firebasestorage.app",
+                messagingSenderId: "603929989829",
+                appId: "1:603929989829:web:98eac7f48e7ad6fc4e96ac"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // --- HỆ THỐNG CHUYỂN TAB ---
+            function switchTab(activeBtnId, activeTabId) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(activeBtnId).classList.add('active');
+                document.getElementById(activeTabId).classList.add('active');
+            }
+            document.getElementById('btn-tab-movie').onclick = () => switchTab('btn-tab-movie', 'tab-movie');
+            document.getElementById('btn-tab-episode').onclick = () => { switchTab('btn-tab-episode', 'tab-episode'); loadMovies(); };
+            document.getElementById('btn-tab-edit').onclick = () => { switchTab('btn-tab-edit', 'tab-edit'); loadMovies(); };
+
+            // Biến toàn cục để lưu trữ dữ liệu phim đang sửa
+            window.currentEditMovieData = null;
+
+            // --- HÚT TÊN PHIM VÀO CÁC DROPDOWN ---
+            async function loadMovies() {
+                const selects = document.querySelectorAll('.dropdown-movies');
+                try {
+                    const querySnapshot = await getDocs(collection(db, "movies"));
+                    selects.forEach(select => {
+                        select.innerHTML = '<option value="">-- Chọn phim --</option>';
+                        querySnapshot.forEach((doc) => {
+                            const opt = document.createElement('option');
+                            opt.value = doc.id; opt.textContent = doc.data().title;
+                            select.appendChild(opt);
+                        });
+                    });
+                } catch (error) { console.error("Lỗi:", error); }
+            }
+            loadMovies();
+
+            // ==============================================
+            // LOGIC TAB 1 & 2 (TẠO MỚI) - Giữ nguyên như cũ
+            // ==============================================
+            document.getElementById('btn-add-movie').addEventListener('click', async () => {
+                const movieId = document.getElementById('input-id').value.trim();
+                if(!movieId) return alert("❌ Nhập ID phim!");
+                document.getElementById('loading-movie').style.display = 'block';
+                try {
+                    await setDoc(doc(db, "movies", movieId), {
+                        type: document.getElementById('input-type').value,
+                        status: document.getElementById('input-status').value,
+                        title: document.getElementById('input-title').value.trim(),
+                        altTitle: document.getElementById('input-alttitle').value.trim().replace(/\n/g, "<br>"),
+                        tag: document.getElementById('input-tag').value.trim(),
+                        poster: document.getElementById('input-poster-text').value.trim(),
+                        trailer: document.getElementById('input-trailer').value.trim(),
+                        desc: document.getElementById('input-desc').value.trim().replace(/\n/g, "<br>"),
+                        episodes: [], updatedAt: Date.now() 
+                    });
+                    alert("✅ Tạo phim thành công!"); loadMovies();
+                } catch (error) { alert("❌ Lỗi: " + error.message); } 
+                finally { document.getElementById('loading-movie').style.display = 'none'; }
+            });
+
+            document.getElementById('btn-add-episode').addEventListener('click', async () => {
+                const epMovieId = document.getElementById('ep-movie-id').value;
+                if(!epMovieId) return alert("❌ Chọn phim!");
+                document.getElementById('loading-episode').style.display = 'block';
+                try {
+                    await updateDoc(doc(db, "movies", epMovieId), {
+                        episodes: arrayUnion({
+                            title: document.getElementById('ep-title').value.trim(),
+                            linkVIP: document.getElementById('ep-vip').value.trim(),
+                            linkDuPhong: document.getElementById('ep-dp1').value.trim(),
+                            linkDuPhong2: document.getElementById('ep-dp2').value.trim()
+                        }),
+                        updatedAt: Date.now() 
+                    });
+                    alert("✅ Đăng tập thành công!");
+                } catch (error) { alert("❌ Lỗi!"); } 
+                finally { document.getElementById('loading-episode').style.display = 'none'; }
+            });
+
+            // ==============================================
+            // LOGIC TAB 3: CHỈNH SỬA
+            // ==============================================
+
+            // 1. Khi chọn phim -> Lôi dữ liệu ra điền vào Form
+            window.fetchMovieDataToEdit = async function() {
+                const movieId = document.getElementById('edit-movie-id').value;
+                const sectionMovie = document.getElementById('edit-movie-section');
+                const sectionEp = document.getElementById('edit-episode-section');
+                
+                if(!movieId) { sectionMovie.style.display = 'none'; sectionEp.style.display = 'none'; return; }
+                
+                document.getElementById('loading-edit').style.display = 'block';
+                try {
+                    const docSnap = await getDoc(doc(db, "movies", movieId));
+                    if (docSnap.exists()) {
+                        window.currentEditMovieData = docSnap.data();
+                        const data = window.currentEditMovieData;
+
+                        // Điền vào Form Phim
+                        document.getElementById('edit-type').value = data.type || 'series';
+                        document.getElementById('edit-status').value = data.status || 'Đang tiến hành';
+                        document.getElementById('edit-title').value = data.title;
+                        document.getElementById('edit-alttitle').value = (data.altTitle || "").replace(/<br>/g, "\n");
+                        document.getElementById('edit-tag').value = data.tag || "";
+                        document.getElementById('edit-poster').value = data.poster || "";
+                        document.getElementById('edit-trailer').value = data.trailer || "";
+                        document.getElementById('edit-desc').value = (data.desc || "").replace(/<br>/g, "\n");
+
+                        // Bật khu vực sửa Phim
+                        sectionMovie.style.display = 'block';
+
+                        // Điền vào Dropdown Tập Phim
+                        const epSelect = document.getElementById('edit-ep-index');
+                        epSelect.innerHTML = '<option value="">-- Chọn tập --</option>';
+                        if(data.episodes && data.episodes.length > 0) {
+                            data.episodes.forEach((ep, index) => {
+                                const opt = document.createElement('option');
+                                opt.value = index; opt.textContent = ep.title;
+                                epSelect.appendChild(opt);
+                            });
+                            sectionEp.style.display = 'block'; // Bật khu vực sửa Tập
+                        } else {
+                            sectionEp.style.display = 'none';
+                        }
+                    }
+                } catch (error) { alert("Lỗi tải dữ liệu!"); }
+                finally { document.getElementById('loading-edit').style.display = 'none'; }
+            };
+
+            // 2. Nút Cập nhật Phim
+            document.getElementById('btn-update-movie').addEventListener('click', async () => {
+                const movieId = document.getElementById('edit-movie-id').value;
+                if(!movieId) return;
+                document.getElementById('loading-edit').style.display = 'block';
+                try {
+                    await updateDoc(doc(db, "movies", movieId), {
+                        type: document.getElementById('edit-type').value,
+                        status: document.getElementById('edit-status').value,
+                        title: document.getElementById('edit-title').value.trim(),
+                        altTitle: document.getElementById('edit-alttitle').value.trim().replace(/\n/g, "<br>"),
+                        tag: document.getElementById('edit-tag').value.trim(),
+                        poster: document.getElementById('edit-poster').value.trim(),
+                        trailer: document.getElementById('edit-trailer').value.trim(),
+                        desc: document.getElementById('edit-desc').value.trim().replace(/\n/g, "<br>"),
+                        updatedAt: Date.now()
+                    });
+                    alert("✅ Đã cập nhật xong thông tin Phim!");
+                } catch (error) { alert("❌ Lỗi cập nhật!"); }
+                finally { document.getElementById('loading-edit').style.display = 'none'; }
+            });
+
+            // 3. Khi chọn Tập -> Lôi link ra
+            window.fetchEpisodeDataToEdit = function() {
+                const index = document.getElementById('edit-ep-index').value;
+                if(index === "") {
+                    document.getElementById('edit-ep-title').value = '';
+                    document.getElementById('edit-ep-vip').value = '';
+                    document.getElementById('edit-ep-dp1').value = '';
+                    document.getElementById('edit-ep-dp2').value = '';
+                    return;
+                }
+                const epData = window.currentEditMovieData.episodes[index];
+                document.getElementById('edit-ep-title').value = epData.title || '';
+                document.getElementById('edit-ep-vip').value = epData.linkVIP || '';
+                document.getElementById('edit-ep-dp1').value = epData.linkDuPhong || '';
+                document.getElementById('edit-ep-dp2').value = epData.linkDuPhong2 || '';
+            };
+
+            // 4. Nút Cập nhật Tập
+            document.getElementById('btn-update-episode').addEventListener('click', async () => {
+                const movieId = document.getElementById('edit-movie-id').value;
+                const index = document.getElementById('edit-ep-index').value;
+                if(!movieId || index === "") return alert("Chưa chọn tập!");
+                
+                document.getElementById('loading-edit').style.display = 'block';
+                try {
+                    // Sửa trực tiếp trong biến tạm
+                    window.currentEditMovieData.episodes[index] = {
+                        title: document.getElementById('edit-ep-title').value.trim(),
+                        linkVIP: document.getElementById('edit-ep-vip').value.trim(),
+                        linkDuPhong: document.getElementById('edit-ep-dp1').value.trim(),
+                        linkDuPhong2: document.getElementById('edit-ep-dp2').value.trim()
+                    };
+                    
+                    // Đẩy nguyên mảng mới lên Mây
+                    await updateDoc(doc(db, "movies", movieId), {
+                        episodes: window.currentEditMovieData.episodes,
+                        updatedAt: Date.now()
+                    });
+                    alert("✅ Đã cập nhật xong link Tập phim!");
+                } catch (error) { alert("❌ Lỗi cập nhật tập!"); }
+                finally { document.getElementById('loading-edit').style.display = 'none'; }
+            });
+        </script>
+    </body>
+</html>

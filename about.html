@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Về chúng tớ - MHEnt. Cinema</title>
+        <link rel="icon" type="image/jpeg" href="assets/avt-web.jpg">
+        <link rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    </head>
+    <body class="gradient-bg">
+
+        <nav class="navbar">
+            <div class="nav-left">
+                <a onclick="window.location.href='index.html'" style="cursor: pointer;">
+                    <img src="assets/avt-web.jpg" alt="Avatar Web" class="avt-img">
+                    <span class="logo-name">MHEnt. - Cinema</span>
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="window.location.href='index.html'" style="cursor: pointer;">Trang chủ</a></li>
+                <li><a onclick="window.location.href='index.html#phim-dang-chieu'" style="cursor: pointer;">Danh sách Phim</a></li>
+                <li><a onclick="window.location.href='about.html'" style="cursor: pointer;" class="active-nav">Về chúng tớ</a></li>
+                <li class="user-section">
+                    <div id="bell-container" style="display: none;">
+                        <div class="notif-bell" onclick="toggleNotif()">
+                            🔔 <span class="notif-dot"></span>
+                        </div>
+                        <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
+                            <div class="notif-header">Thông báo mới</div>
+                            <div id="notif-list"></div>
+                        </div>
+                    </div>
+                    <button id="btn-login" class="btn-login">Đăng nhập</button>
+                    <div id="user-profile" class="user-profile" style="position: relative;">
+                        <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <img id="user-avatar" src="" alt="User" class="user-avatar">
+                            <span id="user-name" class="user-name">Tên User</span>
+                        </div>
+                        <div id="dropdown-account" class="dropdown-menu account-dropdown">
+                            <div class="dropdown-item">👤 My Profile</div>
+                            <div class="dropdown-item">⭐ Phim đã lưu</div>
+                            <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
+                            <hr style="border: 0.5px solid #2a2a35; margin: 0;">
+                            <div id="btn-logout" class="dropdown-item" style="color: #ff4d4d !important;">🚪 Thoát</div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="about-container">
+            
+            <section class="about-header">
+                <img src="assets/avt-web.jpg" alt="MHEnt Logo" class="about-logo">
+                <h1>Miyazaki Haruto Entertainment Co., Ltd.</h1>
+                <p class="about-subtitle">Dự án Fan-sub phi lợi nhuận</p>
+                <div class="about-desc">
+                    <p>Chào mừng bạn đến với MHEnt. Cinema! Chúng tớ là một nhóm nhỏ đam mê văn hóa 2D, đặc biệt là vũ trụ Pretty Cure. Với mong muốn mang những bộ phim tuyệt vời này đến gần hơn với khán giả Việt Nam, MHEnt. được thành lập để thực hiện các bản vietsub chất lượng, hoàn toàn phi lợi nhuận.</p>
+                </div>
+            </section>
+
+            <section class="about-projects">
+                <h2>🎬 Các dự án nổi bật</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <h3 style="color: #ff85a2;">Star Detective Pretty Cure!</h3>
+                        <p>Series dài tập - Đang tiến hành</p>
+                    </div>
+                    <div class="project-card">
+                        <h3 style="color: #ff85a2;">Eiga Kimi to Idol Pretty Cure♪</h3>
+                        <p>Movie - Đã hoàn thành</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="about-social">
+                <h2>🌐 Mạng lưới kết nối</h2>
+                <p>Theo dõi và ủng hộ chúng tớ tại các nền tảng chính thức nhé!</p>
+                <div class="social-buttons">
+                    <a onclick="window.location.href='https://www.facebook.com/mharuto.entertainment/'" style="cursor: pointer;" target="_blank" class="btn-social fb-page">🔗 Fanpage Chính Thức</a>
+                    <a onclick="window.location.href='https://www.facebook.com/groups/mhent.cinema'" style="cursor: pointer;" target="_blank" class="btn-social fb-cinema">🍿 Rạp Phim Trên Facebook</a>
+                </div>
+            </section>
+
+        </main>
+
+        <button id="btn-back-to-top" title="Lên đầu trang">⬆</button>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>©2026 Miyazaki Haruto Entertainment Co., Ltd.</p>
+                <div class="footer-social">
+                    <a onclick="window.location.href='https://www.facebook.com/mharuto.entertainment/'" style="cursor: pointer;" target="_blank" class="footer-link">📘 Fanpage MHEnt.</a>
+                    <span class="footer-dot">•</span>
+                    <a onclick="window.location.href='https://www.facebook.com/groups/mhent.cinema'" style="cursor: pointer;" target="_blank" class="footer-link">🍿 Rạp phim Facebook</a>
+                </div>
+            </div>
+        </footer>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+            import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+            import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAticyRN5vynyWshwGZUn6u6Oj-JfR9Vds",
+                authDomain: "mhent-cinema.firebaseapp.com",
+                projectId: "mhent-cinema",
+                storageBucket: "mhent-cinema.firebasestorage.app",
+                messagingSenderId: "603929989829",
+                appId: "1:603929989829:web:98eac7f48e7ad6fc4e96ac"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+
+            // 1. HỆ THỐNG USER (AVATAR & NÚT LOGIN)
+            const btnLogin = document.getElementById('btn-login');
+            const btnLogout = document.getElementById('btn-logout');
+            const userProfile = document.getElementById('user-profile');
+            const userAvatar = document.getElementById('user-avatar');
+            const userName = document.getElementById('user-name');
+
+            if (btnLogin) {
+                btnLogin.addEventListener('click', () => {
+                    window.location.href = 'login.html';
+                });
+            }
+            if (btnLogout) {
+                btnLogout.addEventListener('click', async () => {
+                    await signOut(auth);
+                });
+            }
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    if(btnLogin) btnLogin.style.display = 'none';
+                    if(userProfile) userProfile.style.display = 'flex';
+                    if(userName) userName.innerText = user.displayName;
+                    if(userAvatar) userAvatar.src = user.photoURL;
+                } else {
+                    if(btnLogin) btnLogin.style.display = 'flex';
+                    if(userProfile) userProfile.style.display = 'none';
+                }
+            });
+
+            // 3. HỆ THỐNG ĐĂNG NHẬP & THÔNG BÁO
+            window.toggleAccount = function() {
+                const acc = document.getElementById('dropdown-account');
+                const notif = document.getElementById('dropdown-notif');
+                acc.style.display = acc.style.display === 'block' ? 'none' : 'block';
+                notif.style.display = 'none';
+            };
+            window.toggleNotif = function() {
+                const notif = document.getElementById('dropdown-notif');
+                const acc = document.getElementById('dropdown-account');
+                notif.style.display = notif.style.display === 'block' ? 'none' : 'block';
+                acc.style.display = 'none';
+            };
+            window.onclick = function(event) {
+                if (!event.target.closest('.user-section')) {
+                    document.getElementById('dropdown-account').style.display = 'none';
+                    document.getElementById('dropdown-notif').style.display = 'none';
+                }
+            };
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('btn-login').style.display = 'none';
+                    document.getElementById('user-profile').style.display = 'flex';
+                    document.getElementById('bell-container').style.display = 'block';
+                    document.getElementById('user-name').innerText = user.displayName;
+                    document.getElementById('user-avatar').src = user.photoURL;
+                    loadNotifications();
+                } else {
+                    document.getElementById('btn-login').style.display = 'flex';
+                    document.getElementById('user-profile').style.display = 'none';
+                    document.getElementById('bell-container').style.display = 'none';
+                }
+            });
+            async function loadNotifications() {
+                const notifList = document.getElementById('notif-list');
+                try {
+                    const querySnapshot = await getDocs(collection(db, "movies"));
+                    let movies = [];
+                    querySnapshot.forEach(doc => movies.push({id: doc.id, ...doc.data()}));
+                    movies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+                    notifList.innerHTML = '';
+                    movies.slice(0, 5).forEach(movie => {
+                        const lastEp = movie.episodes && movie.episodes.length > 0 
+                                    ? movie.episodes[movie.episodes.length - 1].title 
+                                    : "Vừa cập nhật hồ sơ mới!";
+                        const item = `
+                            <div class="notif-item" onclick="window.location.href='description.html?id=${movie.id}'">
+                                <img src="${movie.poster}" class="notif-poster">
+                                <div class="notif-info">
+                                    <div class="notif-title">${movie.title}</div>
+                                    <div class="notif-desc">🎬 ${lastEp}<br>Bấm để xem ngay!</div>
+                                </div>
+                            </div>
+                        `;
+                        notifList.innerHTML += item;
+                    });
+                } catch (e) { notifList.innerHTML = '<p style="padding:10px;">Chưa có thông báo nào...</p>'; }
+            }
+            // 4. BÙA CHÚ & HIỆU ỨNG CƠ BẢN
+            if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+            window.scrollTo(0, 0);
+            const backToTopBtn = document.getElementById("btn-back-to-top");
+            if (backToTopBtn) { 
+                window.addEventListener("scroll", () => {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopBtn.style.display = "block";
+                    } else { backToTopBtn.style.display = "none"; }
+                });
+                backToTopBtn.addEventListener("click", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || (e.ctrlKey && e.key === 'U')) { e.preventDefault(); return false; }
+            });
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        </script>
+    </body>
+</html>
