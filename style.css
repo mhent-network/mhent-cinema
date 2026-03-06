@@ -111,6 +111,27 @@ body {
     gap: 15px; 
 }
 
+/* --- Nút Dark Mode Độc Lập (Ngoài Navbar) --- */
+.btn-theme { 
+    background: transparent; 
+    border: 1px solid #ff85a2; 
+    font-size: 1.1rem; 
+    border-radius: 50%; 
+    width: 36px; 
+    height: 36px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    padding: 0;
+}
+
+.btn-theme:hover { 
+    background: #fff0f3; 
+    transform: scale(1.1); 
+}
+
 .btn-login { 
     display: flex; 
     align-items: center; 
@@ -1533,6 +1554,14 @@ body.dark-mode .btn-back {
 body.dark-mode .btn-back:hover { 
     background: #ff85a2; 
     color: #fff; 
+}
+
+/* Màu nút theme độc lập khi tắt đèn */
+body.dark-mode .btn-theme { 
+    border-color: #2a2a35; 
+}
+body.dark-mode .btn-theme:hover { 
+    background: #2a2a35; 
 }
 
 /* Login Page Dark Mode specifics */
