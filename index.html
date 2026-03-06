@@ -227,27 +227,46 @@
             // 3. HỆ THỐNG ĐĂNG NHẬP 
             // ==========================================
             // --- ĐIỀU KHIỂN DROPDOWN ---
+            // Mở/Đóng siêu mượt bằng classList
             window.toggleAccount = function() {
                 const acc = document.getElementById('dropdown-account');
                 const notif = document.getElementById('dropdown-notif');
-                acc.style.display = acc.style.display === 'block' ? 'none' : 'block';
-                notif.style.display = 'none'; // Đóng thông báo nếu đang mở
+                if(notif) notif.classList.remove('show'); // Đóng notif nếu đang mở
+                if(acc) acc.classList.toggle('show');
             };
 
             window.toggleNotif = function() {
                 const notif = document.getElementById('dropdown-notif');
                 const acc = document.getElementById('dropdown-account');
-                notif.style.display = notif.style.display === 'block' ? 'none' : 'block';
-                acc.style.display = 'none'; // Đóng tài khoản nếu đang mở
+                if(acc) acc.classList.remove('show'); // Đóng account nếu đang mở
+                if(notif) notif.classList.toggle('show');
             };
 
-            // Đóng popup khi bấm ra ngoài
+            // Bấm ra ngoài là tự động thu vòi lại
             window.onclick = function(event) {
                 if (!event.target.closest('.user-section')) {
-                    document.getElementById('dropdown-account').style.display = 'none';
-                    document.getElementById('dropdown-notif').style.display = 'none';
+                    const acc = document.getElementById('dropdown-account');
+                    const notif = document.getElementById('dropdown-notif');
+                    if(acc) acc.classList.remove('show');
+                    if(notif) notif.classList.remove('show');
                 }
             };
+
+            if (btnLogin) { btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; }); }
+            if (btnLogout) { btnLogout.addEventListener('click', async () => { await signOut(auth); }); }
+
+            // --- TÍNH NĂNG DARK MODE SIÊU CẤP ---
+            window.toggleDarkMode = function() {
+                document.body.classList.toggle('dark-mode');
+                // Lưu lựa chọn vào bộ nhớ trình duyệt để qua trang khác không bị mất
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('mhent_dark_mode', isDark ? 'on' : 'off');
+            };
+
+            // Tự động kiểm tra lúc tải trang xem user có đang bật Dark Mode không
+            if (localStorage.getItem('mhent_dark_mode') === 'on') {
+                document.body.classList.add('dark-mode');
+            }
 
             // Cập nhật lại onAuthStateChanged để hiện chuông
             onAuthStateChanged(auth, (user) => {

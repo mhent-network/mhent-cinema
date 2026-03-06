@@ -205,20 +205,32 @@ body {
     border: 2px solid #ffffff; 
 }
 
+/* --- Dropdown Menu: Đóng/Mở siêu mượt --- */
 .dropdown-menu { 
     position: absolute; 
     top: 60px; 
-    right: 0; /* Ép sát mép phải của chuông/avatar */
-    left: auto;
-    transform: none; /* Bỏ cái căn giữa cũ đi */
-    background: rgba(255, 255, 255, 0.95); /* Trắng hơi trong suốt */
-    backdrop-filter: blur(10px); /* Hiệu ứng kính mờ sang xịn */
+    right: 0; 
+    background: rgba(255, 255, 255, 0.95); 
+    backdrop-filter: blur(10px); 
     border: 1px solid rgba(255, 133, 162, 0.2); 
     border-radius: 16px; 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-    display: none; 
     z-index: 1000; 
-    animation: fadeInDown 0.3s ease; 
+    
+    /* MA THUẬT NẰM Ở ĐÂY: Thay display: none bằng các hiệu ứng tàng hình */
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95); /* Thụt lên và nhỏ lại tí xíu */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy nhẹ như lò xo */
+    pointer-events: none; /* Tránh click nhầm khi đang tàng hình */
+}
+
+/* Class thêm vào khi bấm mở */
+.dropdown-menu.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
 }
 
 /* Thêm cái mũi tên nhỏ xíu chĩa lên trên cho giống Web xịn */
