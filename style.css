@@ -207,98 +207,141 @@ body {
 
 .dropdown-menu { 
     position: absolute; 
-    top: 55px; 
-    left: 50%; /* Ma thuật căn giữa 1 */
-    transform: translateX(-50%); /* Ma thuật căn giữa 2 */
-    background: #ffffff; /* Nền trắng tinh khôi */
-    border: 1px solid #ffe0e9; /* Viền hồng phấn */
-    border-radius: 12px; 
-    box-shadow: 0 5px 25px rgba(255, 133, 162, 0.15); /* Bóng đổ màu hồng nhạt */
+    top: 60px; 
+    right: 0; /* Ép sát mép phải của chuông/avatar */
+    left: auto;
+    transform: none; /* Bỏ cái căn giữa cũ đi */
+    background: rgba(255, 255, 255, 0.95); /* Trắng hơi trong suốt */
+    backdrop-filter: blur(10px); /* Hiệu ứng kính mờ sang xịn */
+    border: 1px solid rgba(255, 133, 162, 0.2); 
+    border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
     display: none; 
     z-index: 1000; 
-    overflow: hidden; 
-    animation: slideDown 0.3s ease; 
+    animation: fadeInDown 0.3s ease; 
 }
 
-@keyframes slideDown { 
-    from { opacity: 0; transform: translate(-50%, -10px); } 
-    to { opacity: 1; transform: translate(-50%, 0); } 
+/* Thêm cái mũi tên nhỏ xíu chĩa lên trên cho giống Web xịn */
+.dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 18px; /* Chĩa đúng vào giữa avatar/chuông */
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    transform: rotate(45deg);
+    border-top: 1px solid rgba(255, 133, 162, 0.2);
+    border-left: 1px solid rgba(255, 133, 162, 0.2);
+    z-index: -1;
+}
+
+@keyframes fadeInDown { 
+    from { opacity: 0; transform: translateY(-10px); } 
+    to { opacity: 1; transform: translateY(0); } 
 }
 
 /* --- Dropdown Tài khoản --- */
-.account-dropdown { 
-    width: 200px; 
-    padding: 10px 0; 
-}
+.account-dropdown { width: 220px; padding: 10px 0; }
 
 .dropdown-item { 
+    position: relative;
     padding: 12px 20px; 
     color: #555 !important; 
     display: flex; 
     align-items: center; 
     gap: 12px; 
     cursor: pointer; 
-    transition: 0.2s; 
+    transition: 0.3s ease; 
     font-size: 0.9rem; 
-    font-weight: 700; 
+    font-weight: 800; 
+    overflow: hidden;
+}
+
+/* Thanh vạch màu hồng ẩn bên trái */
+.dropdown-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10%; height: 80%; width: 4px;
+    background: #ff85a2;
+    border-radius: 0 4px 4px 0;
+    transform: scaleY(0);
+    transition: 0.2s ease;
 }
 
 .dropdown-item:hover { 
-    background: #fff0f3; /* Hover lên nền hồng nhạt */
-    color: #ff85a2 !important; /* Chữ đổi màu hồng */
+    color: #ff85a2 !important; 
+    padding-left: 28px; /* Chữ trượt sang phải một xíu */
+    background: transparent;
 }
 
-.dropdown-divider {
-    height: 1px;
-    background: #ffe0e9;
-    margin: 5px 0;
+.dropdown-item:hover::before {
+    transform: scaleY(1); /* Hiện vạch hồng lên */
+}
+
+.dropdown-divider { 
+    height: 1px; 
+    background: rgba(255, 133, 162, 0.15); 
+    margin: 5px 20px; 
 }
 
 /* --- Dropdown Thông báo --- */
 .notif-dropdown { 
-    width: 360px; 
+    width: 420px; /* Làm cái khung bự ra thêm nè */
 }
 
 .notif-header { 
     display: flex; 
-    justify-content: space-between; 
+    justify-content: space-between; /* Chữ Thông báo bên trái, Đánh dấu bên phải */
     align-items: center;
     padding: 15px 20px; 
-    border-bottom: 1px solid #ffe0e9; 
-    background: #ffffff;
+    border-bottom: 1px solid rgba(255, 133, 162, 0.15); 
+    background: transparent;
 }
 
 .notif-title-text { 
-    font-weight: 800; 
-    font-size: 1rem; 
+    font-weight: 900; 
+    font-size: 1.1rem; 
     color: #ff85a2; 
 }
 
 .notif-mark-read {
     font-size: 0.75rem;
-    color: #ff85a2;
+    color: #888;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
+    transition: 0.2s;
 }
-.notif-mark-read:hover { text-decoration: underline; }
+
+.notif-mark-read:hover { 
+    color: #ff85a2; 
+    text-decoration: underline; 
+}
 
 .notif-body { 
-    max-height: 350px; 
+    max-height: 400px; 
     overflow-y: auto; 
 }
+
+/* Thanh cuộn mỏng xinh xắn cho Thông báo */
+.notif-body::-webkit-scrollbar { width: 6px; }
+.notif-body::-webkit-scrollbar-track { background: transparent; }
+.notif-body::-webkit-scrollbar-thumb { background: #ffe0e9; border-radius: 10px; }
+.notif-body::-webkit-scrollbar-thumb:hover { background: #ff85a2; }
 
 .notif-item { 
     display: flex; 
     padding: 15px 20px; 
     gap: 15px; 
-    border-bottom: 1px solid #fffafb; 
+    border-bottom: 1px solid rgba(255, 133, 162, 0.08); 
     transition: 0.2s; 
     cursor: pointer; 
-    background: #ffffff;
+    background: transparent;
 }
 
 .notif-item:hover { 
-    background: #fff0f3; 
+    background: rgba(255, 133, 162, 0.08); /* Hover nền hồng mờ mờ */
+    padding-left: 25px; /* Hiệu ứng rê chuột trượt nhẹ */
 }
 
 .notif-poster { 
@@ -306,6 +349,7 @@ body {
     height: 70px; 
     border-radius: 6px; 
     object-fit: cover; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .notif-info { 
@@ -314,41 +358,44 @@ body {
 
 .notif-title { 
     font-weight: 800; 
-    font-size: 0.85rem; 
-    color: #555; 
+    font-size: 0.9rem; 
+    color: #555 !important; 
     margin-bottom: 5px; 
 }
 
 .notif-desc { 
-    font-size: 0.75rem; 
-    color: #888; 
+    font-size: 0.8rem; 
+    color: #777 !important; 
     line-height: 1.4; 
 }
 
 .notif-footer {
-    padding: 12px;
-    text-align: center;
-    border-top: 1px solid #ffe0e9;
-    background: #fff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end; /* Đẩy nút qua bên phải */
+    border-top: 1px solid rgba(255, 133, 162, 0.15);
+    background: transparent;
 }
 
 .btn-view-all {
-    background: #ff85a2;
-    color: white;
-    border: none;
-    padding: 8px 20px;
+    background: transparent;
+    color: #ff85a2;
+    border: 1px solid #ff85a2;
+    padding: 6px 18px;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 800;
     cursor: pointer;
-    width: 90%;
+    width: auto; /* Thu nhỏ nút lại, không full màn nữa */
     transition: 0.2s;
     font-family: 'Nunito', sans-serif;
 }
 
 .btn-view-all:hover { 
-    background: #ff5c8a; 
+    background: #ff85a2; 
+    color: white;
     transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 133, 162, 0.3);
 }
 
 /* =========================================
@@ -1283,14 +1330,15 @@ footer {
     text-decoration: underline; 
 }
 
-/* Popup Báo cáo dùng chung */
+/* Popup Báo cáo dùng chung - Chuẩn MHEnt Style */
 .popup-overlay { 
     position: fixed; 
     top: 0; 
     left: 0; 
     width: 100%; 
     height: 100%; 
-    background: rgba(0, 0, 0, 0.75); 
+    background: rgba(255, 255, 255, 0.6); /* Nền mờ sáng sủa */
+    backdrop-filter: blur(5px); /* Hiệu ứng kính mờ xịn xò */
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -1299,13 +1347,13 @@ footer {
 }
 
 .popup-box { 
-    background: #16213e; 
-    border: 2px solid #00ffcc; 
-    border-radius: 12px; 
+    background: #ffffff; 
+    border: 2px solid #ff85a2; 
+    border-radius: 20px; 
     padding: 30px; 
     text-align: center; 
     width: 320px; 
-    box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); 
+    box-shadow: 0 10px 30px rgba(255, 133, 162, 0.2); 
     animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
 }
 
@@ -1316,69 +1364,69 @@ footer {
 
 .popup-box h3 { 
     margin: 0 0 10px 0; 
-    font-size: 22px; 
-    color: #fff; 
+    font-size: 24px; 
+    color: #ff85a2; 
     text-transform: uppercase; 
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
 }
 
 .popup-box p { 
-    color: #d1d1e0; 
+    color: #666; 
     margin-bottom: 25px; 
     font-size: 15px; 
     line-height: 1.5; 
 }
 
 .popup-btn { 
-    background: #00ffcc; 
-    color: #1a1a2e; 
+    background: #ff85a2; 
+    color: #ffffff; 
     border: none; 
     padding: 12px 35px; 
-    border-radius: 8px; 
+    border-radius: 30px; 
     font-size: 16px; 
     font-weight: 900; 
     cursor: pointer; 
     transition: 0.2s; 
-    box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2); 
+    box-shadow: 0 5px 15px rgba(255, 133, 162, 0.3); 
+    font-family: 'Nunito', sans-serif;
 }
 
 .popup-btn:hover { 
-    background: #7fffd4; 
-    transform: translateY(-2px); 
+    background: #ff5c8a; 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 20px rgba(255, 133, 162, 0.4);
 }
 
+/* Style khi báo lỗi */
 .popup-box.error { 
-    border-color: #e94560; 
-    box-shadow: 0 0 25px rgba(233, 69, 96, 0.3); 
+    border-color: #ff4d4d; 
+    box-shadow: 0 10px 30px rgba(255, 77, 77, 0.2); 
+}
+
+.popup-box.error h3 { 
+    color: #ff4d4d; 
 }
 
 .popup-box.error .popup-btn { 
-    background: #e94560; 
-    color: white; 
-    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2); 
+    background: #ff4d4d; 
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3); 
 }
 
 .popup-box.error .popup-btn:hover { 
-    background: #ff85a2; 
+    background: #e60000; 
 }
 
 @keyframes fadeInBg { 
-    from { 
-        opacity: 0; 
-    } 
-    to { 
-        opacity: 1; 
-    } 
+    from { opacity: 0; } 
+    to { opacity: 1; } 
 }
 
 @keyframes scaleUp { 
-    from { 
-        transform: scale(0.8); 
-        opacity: 0; 
-    } 
-    to { 
-        transform: scale(1); 
-        opacity: 1; 
-    } 
+    from { transform: scale(0.8); 
+        opacity: 0; } 
+    to { transform: scale(1); 
+        opacity: 1; } 
 }
 
 /* =========================================
@@ -1521,12 +1569,20 @@ body.dark-mode .loading-overlay {
 }
 
 /* Fix Dropdown Sáng -> Tối */
-body.dark-mode .dropdown-menu,
+body.dark-mode .dropdown-menu { 
+    background: rgba(26, 26, 46, 0.95) !important; 
+    border-color: #2a2a35 !important; 
+}
+
+body.dark-mode .dropdown-menu::before { 
+    background: #1a1a2e; 
+    border-color: #2a2a35; 
+}
+
 body.dark-mode .notif-header,
 body.dark-mode .notif-item,
 body.dark-mode .notif-footer { 
-    background: #1a1a2e !important; 
-    border-color: #2a2a35 !important; 
+    border-color: rgba(255, 255, 255, 0.05) !important; 
 }
 
 body.dark-mode .dropdown-divider { 
@@ -1539,14 +1595,29 @@ body.dark-mode .notif-desc {
     color: #e0e0e0 !important; 
 }
 
+body.dark-mode .notif-mark-read { 
+    color: #888; 
+}
+
+body.dark-mode .notif-mark-read:hover { 
+    color: #ff85a2; 
+}
+
 body.dark-mode .dropdown-item:hover,
 body.dark-mode .notif-item:hover { 
-    background: #0f3460 !important; 
+    background: rgba(255, 255, 255, 0.05) !important; 
     color: #ff85a2 !important; 
 }
 
 body.dark-mode .notif-dot { 
     border-color: #0f0f16; 
+}
+
+/* Popup Báo cáo */
+body.dark-mode .popup-box { 
+    background: #1a1a2e; 
+    border-color: #ff85a2; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
 }
 
 /* =========================================

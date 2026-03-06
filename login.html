@@ -24,6 +24,10 @@
     </nav>
 
     <div id="custom-popup" class="popup-overlay" style="display: none;">
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <h2 style="color: #ff85a2; margin-top: 20px; font-weight: 800; font-family: 'Nunito', sans-serif;">Đang mở cổng Google...</h2>
+        </div>
         <div class="popup-box">
             <div class="popup-icon" id="popup-icon">✨</div>
             <h3 id="popup-title">Thành công!</h3>
@@ -136,15 +140,46 @@
             }
         };
 
-        // 1. Đăng nhập Google
+        // 1. Đăng nhập Google (Có màn hình chờ)
         document.getElementById('btn-login-google').addEventListener('click', async () => {
+            const loadingScreen = document.getElementById('loading-overlay');
+            
+            // Hiện màn hình Loading che web lại
+            loadingScreen.style.display = 'flex';
+            
             try {
+                // Tạm dừng ở đây chờ người dùng nhập mail trên bảng của Google
                 await signInWithPopup(auth, provider);
+                
+                // Nhập xong thành công -> Tắt loading -> Bắn Popup
+                loadingScreen.style.display = 'none';
                 showPopup('Đang đưa cậu về Rạp...', false);
-            } catch (error) { showPopup('Mạng lỗi hoặc bị hủy rùi!', true); }
+                
+            } catch (error) { 
+                // Có lỗi hoặc bấm Hủy -> Tắt loading -> Bắn Popup báo lỗi
+                loadingScreen.style.display = 'none';
+                showPopup('Mạng lỗi hoặc cậu đã hủy đăng nhập rùi!', true); 
+            }
         });
 
         // 2. Đăng nhập Email
+        // BẮT SỰ KIỆN NÚT ENTER CHO ĐĂNG NHẬP
+        const loginEmailField = document.getElementById('login-email');
+        const loginPassField = document.getElementById('login-password');
+        const btnLoginClick = document.getElementById('btn-login-email');
+
+        const pressEnterToLogin = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Ngăn nó nhảy lung tung
+                btnLoginClick.click(); // Giả lập cú click chuột vào nút "Vào Rạp"
+            }
+        };
+
+        if (loginEmailField && loginPassField) {
+            loginEmailField.addEventListener('keypress', pressEnterToLogin);
+            loginPassField.addEventListener('keypress', pressEnterToLogin);
+        }
+        
         document.getElementById('btn-login-email').addEventListener('click', async () => {
             const email = document.getElementById('login-email').value.trim(); 
             const pass = document.getElementById('login-password').value.trim();
