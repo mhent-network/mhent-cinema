@@ -158,7 +158,14 @@
             </div>
         </div>
 
-        <div id="toast-container"></div>
+        <div id="custom-popup" class="popup-overlay" style="display: none;">
+            <div class="popup-box">
+                <div class="popup-icon" id="popup-icon">✨</div>
+                <h3 id="popup-title">Thành công!</h3>
+                <p id="popup-message">Nội dung thông báo ở đây.</p>
+                <button class="popup-btn" onclick="closePopup()">OK</button>
+            </div>
+        </div>
 
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -216,7 +223,7 @@
             // ==============================================
             document.getElementById('btn-add-movie').addEventListener('click', async () => {
                 const movieId = document.getElementById('input-id').value.trim();
-                if(!movieId) return showToast("❌ Nhập ID phim!", true);
+                if(!movieId) return showPopup("❌ Nhập ID phim!", true);
                 document.getElementById('loading-movie').style.display = 'block';
                 try {
                     await setDoc(doc(db, "movies", movieId), {
@@ -230,7 +237,7 @@
                         desc: document.getElementById('input-desc').value.trim().replace(/\n/g, "<br>"),
                         episodes: [], updatedAt: Date.now() 
                     });
-                    showToast("✅ Tạo phim thành công!"); 
+                    showPopup("✅ Tạo phim thành công!"); 
                     
                     // CLEAR FORM TẠO PHIM
                     document.getElementById('input-id').value = '';
@@ -244,7 +251,7 @@
                     document.getElementById('input-status').selectedIndex = 0;
                     
                     loadMovies(); // Cập nhật lại danh sách dropdown
-                } catch (error) { showToast("❌ Lỗi: " + error.message, true); } 
+                } catch (error) { showPopup("❌ Lỗi: " + error.message, true); } 
                 finally { document.getElementById('loading-movie').style.display = 'none'; }
             });
 
@@ -253,7 +260,7 @@
             // ==============================================
             document.getElementById('btn-add-episode').addEventListener('click', async () => {
                 const epMovieId = document.getElementById('ep-movie-id').value;
-                if(!epMovieId) return showToast("❌ Chọn phim!", true);
+                if(!epMovieId) return showPopup("❌ Chọn phim!", true);
                 document.getElementById('loading-episode').style.display = 'block';
                 try {
                     await updateDoc(doc(db, "movies", epMovieId), {
@@ -265,7 +272,7 @@
                         }),
                         updatedAt: Date.now() 
                     });
-                    showToast("✅ Đăng tập thành công!");
+                    showPopup("✅ Đăng tập thành công!");
                     
                     // CLEAR FORM ĐĂNG TẬP (Cố tình không clear epMovieId để đăng tiếp tập khác cho nhanh)
                     document.getElementById('ep-title').value = '';
@@ -273,7 +280,7 @@
                     document.getElementById('ep-dp1').value = '';
                     document.getElementById('ep-dp2').value = '';
 
-                } catch (error) { showToast("❌ Lỗi: " + error.message, true); } 
+                } catch (error) { showPopup("❌ Lỗi: " + error.message, true); } 
                 finally { document.getElementById('loading-episode').style.display = 'none'; }
             });
 
@@ -318,7 +325,7 @@
                             sectionEp.style.display = 'none';
                         }
                     }
-                } catch (error) { showToast("Lỗi tải dữ liệu!", true); }
+                } catch (error) { showPopup("Lỗi tải dữ liệu!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             };
 
@@ -338,8 +345,8 @@
                         desc: document.getElementById('edit-desc').value.trim().replace(/\n/g, "<br>"),
                         updatedAt: Date.now()
                     });
-                    showToast("✅ Đã cập nhật xong thông tin Phim!");
-                } catch (error) { showToast("❌ Lỗi cập nhật!", true); }
+                    showPopup("✅ Đã cập nhật xong thông tin Phim!");
+                } catch (error) { showPopup("❌ Lỗi cập nhật!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             });
 
@@ -362,7 +369,7 @@
             document.getElementById('btn-update-episode').addEventListener('click', async () => {
                 const movieId = document.getElementById('edit-movie-id').value;
                 const index = document.getElementById('edit-ep-index').value;
-                if(!movieId || index === "") return showToast("Chưa chọn tập!", true);
+                if(!movieId || index === "") return showPopup("Chưa chọn tập!", true);
                 
                 document.getElementById('loading-edit').style.display = 'block';
                 try {
@@ -377,19 +384,36 @@
                         episodes: window.currentEditMovieData.episodes,
                         updatedAt: Date.now()
                     });
-                    showToast("✅ Đã cập nhật xong link Tập phim!");
-                } catch (error) { showToast("❌ Lỗi cập nhật tập!", true); }
+                    showPopup("✅ Đã cập nhật xong link Tập phim!");
+                } catch (error) { showPopup("❌ Lỗi cập nhật tập!", true); }
                 finally { document.getElementById('loading-edit').style.display = 'none'; }
             });
 
-            // --- HÀM GỌI THÔNG BÁO SIÊU ĐẸP ---
-            window.showToast = function(message, isError = false) {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = 'toast-msg' + (isError ? ' toast-error' : '');
-                toast.innerText = message;
-                container.appendChild(toast);
-                setTimeout(() => { toast.remove(); }, 3000); // Tự động xóa sau 3 giây
+            // --- HÀM GỌI POPUP CHÍNH GIỮA ---
+            window.showPopup = function(message, isError = false) {
+                const popup = document.getElementById('custom-popup');
+                const box = document.querySelector('.popup-box');
+                const icon = document.getElementById('popup-icon');
+                const title = document.getElementById('popup-title');
+                const msg = document.getElementById('popup-message');
+
+                if (isError) {
+                    box.classList.add('error');
+                    icon.innerText = "❌";
+                    title.innerText = "Lỗi rùi!";
+                    title.style.color = "#ff85a2";
+                } else {
+                    box.classList.remove('error');
+                    icon.innerText = "✨";
+                    title.innerText = "Thành công!";
+                    title.style.color = "#00ffcc";
+                }
+                msg.innerText = message;
+                popup.style.display = 'flex';
+            };
+
+            window.closePopup = function() {
+                document.getElementById('custom-popup').style.display = 'none';
             };
         </script>
     </body>

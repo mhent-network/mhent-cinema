@@ -1285,13 +1285,19 @@ body.dark-mode .user-name {
 .notif-title { font-weight: bold; font-size: 0.85rem; color: #ff85a2; margin-bottom: 5px; }
 .notif-desc { font-size: 0.75rem; color: #ccc; line-height: 1.3; }
 
-/* HỆ THỐNG THÔNG BÁO GÓC MÀN HÌNH */
-#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-.toast-msg {
-    background: #16213e; color: #fff; padding: 15px 25px; border-radius: 8px; font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-left: 5px solid #00ffcc; font-family: 'Nunito', sans-serif;
-    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), fadeOut 0.4s ease-in 2.6s forwards;
-}
-.toast-error { border-left-color: #e94560; }
-@keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+/* CSS CHO POPUP TRUNG TÂM */
+.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeInBg 0.3s; }
+.popup-box { background: #16213e; border: 2px solid #00ffcc; border-radius: 12px; padding: 30px; text-align: center; width: 320px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.popup-icon { font-size: 55px; margin-bottom: 10px; }
+.popup-box h3 { margin: 0 0 10px 0; font-size: 22px; color: #fff; text-transform: uppercase; }
+.popup-box p { color: #d1d1e0; margin-bottom: 25px; font-size: 15px; line-height: 1.5; }
+.popup-btn { background: #00ffcc; color: #1a1a2e; border: none; padding: 12px 35px; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2); }
+.popup-btn:hover { background: #7fffd4; transform: translateY(-2px); }
+
+/* Khi Popup báo lỗi thì sẽ đổi màu đỏ */
+.popup-box.error { border-color: #e94560; box-shadow: 0 0 25px rgba(233, 69, 96, 0.3); }
+.popup-box.error .popup-btn { background: #e94560; color: white; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2); }
+.popup-box.error .popup-btn:hover { background: #ff85a2; }
+
+@keyframes fadeInBg { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
