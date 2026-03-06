@@ -771,12 +771,15 @@ body {
     align-items: center; 
     gap: 5px; 
 }
+/* Chống rớt chữ "Xem ngay" */
 .ep-item-right { 
     color: #ff85a2; 
     font-weight: bold; 
     font-size: 14px; 
-    opacity: 0; /* Ẩn nút xem, hover mới hiện */
+    opacity: 0; 
     transition: 0.3s;
+    white-space: nowrap; /* Bùa chú ép nằm trên 1 dòng */
+    flex-shrink: 0; /* Không cho nó bị bóp méo khi màn hình nhỏ */
 }
 .ep-list-item:hover .ep-item-right { 
     opacity: 1; 
