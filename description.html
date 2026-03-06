@@ -51,7 +51,7 @@
                     
                     <div id="dropdown-account" class="dropdown-menu account-dropdown">
                         <div class="dropdown-item">👤 Hồ sơ</div>
-                        <div class="dropdown-item">⭐ Thư viện</div>
+                        <div class="dropdown-item" onclick="window.location.href='library.html'">⭐ Thư viện</div>
                         <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
                         <div class="dropdown-item">⚙️ Cài đặt</div>
                         <div class="dropdown-divider"></div>
@@ -111,7 +111,6 @@
 
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-            import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
             import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
             import { getFirestore, doc, getDoc, setDoc, arrayUnion, arrayRemove, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
