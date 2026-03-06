@@ -1580,6 +1580,28 @@ body.dark-mode .loading-overlay {
     background: #0f0f16; 
 }
 
+/* Tắt đèn khu vực Hero */
+body.dark-mode .hero { 
+    background: #0f0f16; /* Xóa gradient, ép về nền đen tiệp màu với web */
+}
+
+body.dark-mode .hero h1 { 
+    color: #ffffff; /* Cho chữ "Chào mừng..." sáng rực lên */
+}
+
+body.dark-mode .small-description { 
+    color: #aaaaaa; /* Chữ nghiêng nhạt đi cho dịu mắt */
+}
+
+/* Cứu vớt chữ ở danh sách phim */
+body.dark-mode .movie-info h3 { 
+    color: #ff85a2; /* Tên phim đổi sang trắng sáng */
+}
+
+body.dark-mode .movie-info p { 
+    color: #888888; /* Chữ trạng thái (Current: Episode...) mờ mờ sang trọng */
+}
+
 /* Fix Dropdown Sáng -> Tối */
 body.dark-mode .dropdown-menu { 
     background: rgba(26, 26, 46, 0.95) !important; 
