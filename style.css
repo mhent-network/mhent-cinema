@@ -1006,11 +1006,11 @@ body {
     background: #ff85a2 !important; 
 }
 
-/* HIỆU ỨNG TẮT ĐÈN (CINEMA MODE) */
+/* HIỆU ỨNG TẮT ĐÈN (CINEMA MODE) BẢN HOÀN HẢO */
 .cinema-overlay {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.95); /* Đen tuyền 95% */
+    background: rgba(0, 0, 0, 0.95); /* Đen kịt 95% */
     z-index: 9990; /* Nằm dưới thanh Navbar nhưng trên mọi thứ khác */
     opacity: 0;
     visibility: hidden;
@@ -1028,7 +1028,24 @@ body {
 .video-box.lights-off {
     position: relative;
     z-index: 9995; 
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); /* Tỏa hào quang đen ngầu */
+    box-shadow: 0 0 100px rgba(0, 0, 0, 1); /* Hào quang bóng tối cực mạnh */
+    background: #0f0f16; /* Tự đổi màu cái hộp chứa video thành đen luôn */
+    border: 1px solid #333; /* Thêm viền xám cho ngầu */
+}
+
+/* Đổi màu mấy chữ trong hộp phim khi tắt đèn cho dễ nhìn */
+.video-box.lights-off .watch-header h2,
+.video-box.lights-off .server-label {
+    color: #ff85a2;
+}
+.video-box.lights-off .cinema-tools {
+    background: #1a1a2e; /* Nền công cụ tối màu */
+}
+.video-box.lights-off .tool-btn,
+.video-box.lights-off .server-btn-mini {
+    background: #333;
+    color: #bbb;
+    border-color: #555;
 }
 
 /* =========================================

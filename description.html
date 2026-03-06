@@ -20,6 +20,45 @@
                 <li><a onclick="window.location.href='index.html'" style="cursor: pointer;">Trang chủ</a></li>
                 <li><a onclick="window.location.href='index.html#phim-dang-chieu'" style="cursor: pointer;">Danh sách Phim</a></li>
                 <li><a onclick="window.location.href='about.html'" style="cursor: pointer;">Về chúng tớ</a></li>
+                
+                <li class="user-section">
+                <div id="bell-container" style="display: none; position: relative;">
+                    <div class="notif-bell" onclick="toggleNotif()">
+                        🔔 <span class="notif-dot"></span>
+                    </div>
+                    <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
+                        <div class="notif-header">
+                            <span class="notif-title-text">Thông báo</span>
+                            <span class="notif-mark-read">Đánh dấu tất cả là đã đọc</span>
+                        </div>
+                        <div id="notif-list" class="notif-body">
+                            </div>
+                        <div class="notif-footer">
+                            <button class="btn-view-all">Xem tất cả ></button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-theme-toggle" class="btn-theme" onclick="toggleDarkMode()" title="Tắt/Mở đèn">🌓</button>
+
+                <button id="btn-login" class="btn-login">Đăng nhập</button>
+
+                <div id="user-profile" class="user-profile" style="position: relative; display: none;">
+                    <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <img id="user-avatar" src="" alt="User" class="user-avatar">
+                        <span id="user-name" class="user-name">Tên User</span>
+                    </div>
+                    
+                    <div id="dropdown-account" class="dropdown-menu account-dropdown">
+                        <div class="dropdown-item">👤 Hồ sơ</div>
+                        <div class="dropdown-item">⭐ Thư viện</div>
+                        <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
+                        <div class="dropdown-item">⚙️ Cài đặt</div>
+                        <div class="dropdown-divider"></div>
+                        <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
+                    </div>
+                </div>
+            </li>
             </ul>
         </nav>
 
@@ -73,6 +112,7 @@
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
             import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+            import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyASwAr10eyPVw7dqPG78UIVVFiixDe-Nfg",
@@ -86,6 +126,7 @@
 
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+            const auth = getAuth(app);
 
             // Biến toàn cục chứa link trailer
             window.currentTrailerLink = "";
@@ -182,6 +223,117 @@
                 if (event.target === modal) {
                     window.closeTrailer();
                 }
+            };
+
+            // ==========================================
+            // 🌟 LÕI HỆ THỐNG DÙNG CHUNG (NAVBAR, DARK MODE, USER, NOTI)
+            // ==========================================
+            const btnLogin = document.getElementById('btn-login');
+            const btnLogout = document.getElementById('btn-logout');
+
+            if (btnLogin) { btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; }); }
+            if (btnLogout) { btnLogout.addEventListener('click', async () => { await signOut(auth); }); }
+
+            // 1. --- ĐIỀU KHIỂN DROPDOWN MƯỢT MÀ ---
+            window.toggleAccount = function() {
+                const acc = document.getElementById('dropdown-account');
+                const notif = document.getElementById('dropdown-notif');
+                if(notif) notif.classList.remove('show');
+                if(acc) acc.classList.toggle('show');
+            };
+
+            window.toggleNotif = function() {
+                const notif = document.getElementById('dropdown-notif');
+                const acc = document.getElementById('dropdown-account');
+                if(acc) acc.classList.remove('show');
+                if(notif) notif.classList.toggle('show');
+            };
+
+            window.onclick = function(event) {
+                // Thêm ngoại lệ cho lớp rèm .cinema-overlay bên trang watch để không bị lỗi
+                if (!event.target.closest('.user-section') && !event.target.closest('.cinema-overlay')) {
+                    const acc = document.getElementById('dropdown-account');
+                    const notif = document.getElementById('dropdown-notif');
+                    if(acc) acc.classList.remove('show');
+                    if(notif) notif.classList.remove('show');
+                }
+            };
+
+            // 2. --- DARK MODE TOÀN HỆ THỐNG ---
+            window.toggleDarkMode = function() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('mhent_dark_mode', isDark ? 'on' : 'off'); // Lưu vào bộ nhớ
+            };
+
+            // Vừa sang trang mới là tự động check xem lúc nãy có đang tắt đèn không
+            if (localStorage.getItem('mhent_dark_mode') === 'on') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // 3. --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP ---
+            onAuthStateChanged(auth, (user) => {
+                const btnTheme = document.getElementById('btn-theme-toggle'); 
+                if (user) {
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
+                    if(btnTheme) btnTheme.style.display = 'none'; 
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
+
+                    // Gắn Tên
+                    let finalName = user.displayName || user.email.split('@')[0];
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
+
+                    // Gắn Ảnh
+                    const avtElement = document.getElementById('user-avatar');
+                    if(avtElement) {
+                        if (user.photoURL) {
+                            avtElement.src = user.photoURL;
+                            avtElement.style.display = 'block'; 
+                        } else {
+                            avtElement.style.display = 'none'; 
+                        }
+                    }
+                    // Kích hoạt chuông thông báo
+                    if (typeof loadNotifications === "function") loadNotifications();
+                } else {
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
+                    if(btnTheme) btnTheme.style.display = 'flex'; 
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'none';
+                }
+            });
+
+            // 4. --- HÀM TẢI THÔNG BÁO CHO CHUÔNG ---
+            // (Đổi thành window.loadNotifications để mọi trang đều gọi được)
+            window.loadNotifications = async function() {
+                const notifList = document.getElementById('notif-list');
+                if(!notifList) return; // Bảo vệ an toàn nếu trang nào quên gắn HTML chuông
+                try {
+                    const querySnapshot = await getDocs(collection(db, "movies"));
+                    let movies = [];
+                    querySnapshot.forEach(doc => movies.push({id: doc.id, ...doc.data()}));
+                    
+                    movies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+                    notifList.innerHTML = '';
+                    movies.slice(0, 5).forEach(movie => {
+                        const lastEp = movie.episodes && movie.episodes.length > 0 
+                                    ? movie.episodes[movie.episodes.length - 1].title 
+                                    : "Vừa cập nhật hồ sơ mới!";
+                        
+                        const item = `
+                            <div class="notif-item" onclick="window.location.href='description.html?id=${movie.id}'">
+                                <img src="${movie.poster}" class="notif-poster">
+                                <div class="notif-info">
+                                    <div class="notif-title">${movie.title}</div>
+                                    <div class="notif-desc">🎬 ${lastEp}<br>Bấm để xem ngay!</div>
+                                </div>
+                            </div>
+                        `;
+                        notifList.innerHTML += item;
+                    });
+                } catch (e) { notifList.innerHTML = '<p style="padding:10px;">Chưa có thông báo nào...</p>'; }
             };
 
             // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
