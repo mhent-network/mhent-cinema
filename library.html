@@ -82,7 +82,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -179,14 +179,16 @@
                                 let currentStatus = movie.type === 'movie' ? (movie.episodes?.length > 0 ? "Current: Full" : "Current: None") : `Current: Episode ${movie.episodes?.length || 0}`;
 
                                 const cardHTML = `
-                                    <div class="movie-card">
+                                    <div class="movie-card" id="lib-card-${movieId}" style="position: relative;">
                                         <a href="description.html?id=${movieId}">
                                             <img src="${movie.poster}" alt="${movie.title}" class="anime-poster">
                                         </a>
+                                        <button onclick="removeFromLibrary('${movieId}')" class="btn-remove-lib" title="Xóa khỏi thư viện">❌</button>
+                                        
                                         <div class="movie-info">
                                             <h3>${movie.title}</h3>
                                             <p>${currentStatus}</p>
-                                            <a href="description.html?id=${movieId}" class="watch-link">⭐ Đã lưu</a>
+                                            <a onclick="window.location.href='description.html?id=${movieId}'" style="cursor: pointer;" class="watch-link">▶ Xem thông tin</a>
                                         </div>
                                     </div>
                                 `;
@@ -223,6 +225,201 @@
                 `;
             }
         });
+        // ==========================================
+        // 🚀 MÁY BẮN THÔNG BÁO NGANG (TOAST)
+        // ==========================================
+        window.showToast = function(title, message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = `toast-msg ${type}`;
+            let icon = type === 'error' ? '❌' : (type === 'info' ? '⭐' : '✅');
+            toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><span class="toast-title">${title}</span><span class="toast-desc">${message}</span></div>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOutRight 0.3s ease-in forwards';
+                setTimeout(() => { toast.remove(); }, 300); 
+            }, 3000);
+        };
+
+        // ==========================================
+        // 🗑️ HÀM XÓA PHIM KHỎI THƯ VIỆN TẠI CHỖ
+        // ==========================================
+        window.removeFromLibrary = async function(movieId) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            // 1. Làm phép tàng hình cái thẻ phim ngay lập tức (UX siêu mượt)
+            const card = document.getElementById(`lib-card-${movieId}`);
+            if(card) {
+                card.style.transition = "0.4s";
+                card.style.opacity = "0";
+                card.style.transform = "scale(0.8)";
+                setTimeout(() => card.remove(), 400); // Đợi tàng hình xong thì xóa luôn
+            }
+
+            // 2. Chạy ngầm lên Firebase để rút tên phim ra khỏi kho
+            try {
+                const userRef = doc(db, "users", user.uid);
+                await updateDoc(userRef, { savedMovies: arrayRemove(movieId) });
+                showToast('Đã xóa', 'Phim đã bay khỏi thư viện!', 'info');
+
+                // 3. Nếu lỡ tay xóa hết sạch phim thì hiện cái bảng "Thư viện trống"
+                setTimeout(() => {
+                    const container = document.getElementById('library-list-container');
+                    if (container && container.children.length === 0) {
+                        container.innerHTML = `
+                            <div style="text-align: center; width: 100%; padding: 50px 0;">
+                                <h3 style="color: #ccc;">Thư viện trống trơn hà... 🏜️</h3>
+                                <p style="color: #888;">Cậu mau ra trang chủ dạo một vòng và tìm phim yêu thích lưu vào đây đi!</p>
+                                <a href="index.html" class="btn-primary" style="margin-top: 15px;">Dạo quanh Rạp phim</a>
+                            </div>
+                        `;
+                    }
+                }, 450);
+
+            } catch (error) {
+                console.error("Lỗi xóa phim:", error);
+                showToast('Lỗi', 'Không thể xóa phim lúc này.', 'error');
+            }
+        };
+
+        // ==========================================
+            // LÕI HỆ THỐNG DÙNG CHUNG (NAVBAR, DARK MODE, USER, TOAST NOTIFICATION)
+            // ==========================================
+            
+            if (btnLogin) btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; });
+            if (btnLogout) btnLogout.addEventListener('click', async () => { await signOut(auth); });
+
+            window.toggleAccount = function() {
+                const acc = document.getElementById('dropdown-account');
+                const notif = document.getElementById('dropdown-notif');
+                if(notif) notif.classList.remove('show');
+                if(acc) acc.classList.toggle('show');
+            };
+
+            window.toggleNotif = function() {
+                const notif = document.getElementById('dropdown-notif');
+                const acc = document.getElementById('dropdown-account');
+                if(acc) acc.classList.remove('show');
+                if(notif) notif.classList.toggle('show');
+            };
+
+            window.onclick = function(event) {
+                if (!event.target.closest('.user-section') && !event.target.closest('.modal')) {
+                    const acc = document.getElementById('dropdown-account');
+                    const notif = document.getElementById('dropdown-notif');
+                    if(acc) acc.classList.remove('show');
+                    if(notif) notif.classList.remove('show');
+                }
+            };
+
+            window.toggleDarkMode = function() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('mhent_dark_mode', isDark ? 'on' : 'off');
+            };
+
+            if (localStorage.getItem('mhent_dark_mode') === 'on') { document.body.classList.add('dark-mode'); }
+
+            onAuthStateChanged(auth, (user) => {
+                const btnTheme = document.getElementById('btn-theme-toggle'); 
+                if (user) {
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
+                    if(btnTheme) btnTheme.style.display = 'none'; 
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
+
+                    let finalName = user.displayName || user.email.split('@')[0];
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
+
+                    const avtElement = document.getElementById('user-avatar');
+                    if(avtElement) {
+                        if (user.photoURL) { avtElement.src = user.photoURL; avtElement.style.display = 'block'; 
+                        } else { avtElement.style.display = 'none'; }
+                    }
+                    if (typeof loadNotifications === "function") loadNotifications();
+
+                    // --- BỔ SUNG: CHECK XEM PHIM NÀY ĐÃ LƯU CHƯA ĐỂ ĐỔI MÀU NÚT ---
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentMovieId = urlParams.get('id');
+                    
+                    if (currentMovieId) {
+                        getDoc(doc(db, "users", user.uid)).then((userSnap) => {
+                            if (userSnap.exists() && userSnap.data().savedMovies && userSnap.data().savedMovies.includes(currentMovieId)) {
+                                const saveBtn = document.getElementById('btn-save-movie');
+                                if (saveBtn) {
+                                    saveBtn.innerHTML = '✔️ Đã lưu';
+                                    saveBtn.style.background = '#ff85a2';
+                                    saveBtn.style.color = 'white';
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
+                    if(btnTheme) btnTheme.style.display = 'flex'; 
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'none';
+                }
+            });
+
+            window.loadNotifications = async function() {
+                const notifList = document.getElementById('notif-list');
+                if(!notifList) return; 
+                try {
+                    const querySnapshot = await getDocs(collection(db, "movies"));
+                    let movies = [];
+                    querySnapshot.forEach(doc => movies.push({id: doc.id, ...doc.data()}));
+                    
+                    movies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+                    notifList.innerHTML = '';
+                    movies.slice(0, 5).forEach(movie => {
+                        const lastEp = movie.episodes && movie.episodes.length > 0 
+                                    ? movie.episodes[movie.episodes.length - 1].title 
+                                    : "Vừa cập nhật hồ sơ mới!";
+                        
+                        const item = `
+                            <div class="notif-item" onclick="window.location.href='description.html?id=${movie.id}'">
+                                <img src="${movie.poster}" class="notif-poster">
+                                <div class="notif-info">
+                                    <div class="notif-title">${movie.title}</div>
+                                    <div class="notif-desc">🎬 ${lastEp}<br>Bấm để xem ngay!</div>
+                                </div>
+                            </div>
+                        `;
+                        notifList.innerHTML += item;
+                    });
+                } catch (e) { notifList.innerHTML = '<p style="padding:10px;">Chưa có thông báo nào...</p>'; }
+            };
+
+            // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
+            if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+            window.scrollTo(0, 0);
+
+            const backToTopBtn = document.getElementById("btn-back-to-top");
+            if (backToTopBtn) { 
+                window.addEventListener("scroll", () => {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopBtn.style.display = "block";
+                    } else {
+                        backToTopBtn.style.display = "none";
+                    }
+                });
+                backToTopBtn.addEventListener("click", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault(); return false;
+                }
+            });
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
     </script>
 </body>
 </html>

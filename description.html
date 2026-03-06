@@ -113,7 +113,7 @@
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
             import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
             import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-            import { getFirestore, doc, getDoc, setDoc, arrayUnion, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+            import { getFirestore, doc, getDoc, setDoc, arrayUnion, arrayRemove, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyASwAr10eyPVw7dqPG78UIVVFiixDe-Nfg",
@@ -242,31 +242,52 @@
                 });
             };
 
-            // --- HÀM LƯU PHIM VÀO FIREBASE (HÀNG REAL) ---
+            // --- HÀM CÔNG TẮC: LƯU & BỎ LƯU PHIM ---
             window.saveToLibrary = async function(movieId) {
                 const user = auth.currentUser; 
                 if (!user) { 
-                    // Xóa alert('Cậu cần đăng nhập...'); thay bằng:
-                    showToast('Lỗi', 'Cậu cần đăng nhập để lưu phim!', 'error');
-                    setTimeout(() => { window.location.href = 'login.html'; }, 1500); // Đợi 1.5s rồi hãy đá sang login
+                    showToast('Lỗi', 'Cậu cần đăng nhập để thao tác nhé!', 'error');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                     return; 
                 }
 
                 const userRef = doc(db, "users", user.uid);
-                try {
-                    await setDoc(userRef, { savedMovies: arrayUnion(movieId) }, { merge: true });
+                const saveBtn = document.getElementById('btn-save-movie');
 
-                    const saveBtn = document.getElementById('btn-save-movie');
-                    if(saveBtn) {
-                        saveBtn.innerHTML = '✔️ Đã lưu';
-                        saveBtn.style.background = '#ff85a2';
-                        saveBtn.style.color = 'white';
+                try {
+                    // Chạy vào kho lấy danh sách phim xem có phim này chưa
+                    const userSnap = await getDoc(userRef);
+                    let isAlreadySaved = false;
+
+                    if (userSnap.exists() && userSnap.data().savedMovies && userSnap.data().savedMovies.includes(movieId)) {
+                        isAlreadySaved = true;
                     }
-                    // Xóa alert('Đã lưu thành công...'); thay bằng:
-                    showToast('Thành công', 'Đã thêm vào thư viện', 'success'); // Y chang chữ của Yuri Garden luôn
+
+                    if (isAlreadySaved) {
+                        // NẾU CÓ RỒI -> BỎ LƯU
+                        await setDoc(userRef, { savedMovies: arrayRemove(movieId) }, { merge: true });
+                        
+                        if(saveBtn) {
+                            saveBtn.innerHTML = '⭐ Lưu phim'; // Trả về chữ cũ
+                            saveBtn.style.background = 'transparent'; // Trả về nền trong suốt
+                            saveBtn.style.color = '#ff85a2'; // Trả về viền hồng
+                        }
+                        showToast('Thông báo', 'Đã bỏ lưu khỏi thư viện', 'info'); // Toast màu hồng
+                    } else {
+                        // NẾU CHƯA CÓ -> THÊM VÀO
+                        await setDoc(userRef, { savedMovies: arrayUnion(movieId) }, { merge: true });
+                        
+                        if(saveBtn) {
+                            saveBtn.innerHTML = '✔️ Đã lưu'; // Đổi thành chữ đã lưu
+                            saveBtn.style.background = '#ff85a2'; // Nền hồng
+                            saveBtn.style.color = 'white'; // Chữ trắng
+                        }
+                        showToast('Thành công', 'Đã thêm vào thư viện', 'success'); // Toast màu xanh
+                    }
                     
                 } catch (error) {
-                    showToast('Thất bại', 'Không thể lưu phim lúc này.', 'error');
+                    console.error("Lỗi:", error);
+                    showToast('Thất bại', 'Lỗi kết nối, cậu thử lại sau nhé.', 'error');
                 }
             };
 
@@ -327,6 +348,23 @@
                         } else { avtElement.style.display = 'none'; }
                     }
                     if (typeof loadNotifications === "function") loadNotifications();
+
+                    // --- BỔ SUNG: CHECK XEM PHIM NÀY ĐÃ LƯU CHƯA ĐỂ ĐỔI MÀU NÚT ---
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentMovieId = urlParams.get('id');
+                    
+                    if (currentMovieId) {
+                        getDoc(doc(db, "users", user.uid)).then((userSnap) => {
+                            if (userSnap.exists() && userSnap.data().savedMovies && userSnap.data().savedMovies.includes(currentMovieId)) {
+                                const saveBtn = document.getElementById('btn-save-movie');
+                                if (saveBtn) {
+                                    saveBtn.innerHTML = '✔️ Đã lưu';
+                                    saveBtn.style.background = '#ff85a2';
+                                    saveBtn.style.color = 'white';
+                                }
+                            }
+                        });
+                    }
                 } else {
                     if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
                     if(btnTheme) btnTheme.style.display = 'flex'; 

@@ -488,6 +488,36 @@ body.dark-mode .ep-list-container::-webkit-scrollbar-thumb:hover { background: #
     to { transform: translateX(120%); opacity: 0; }
 }
 
+/* --- Nút xóa phim trong Thư viện --- */
+.btn-remove-lib {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
+    backdrop-filter: blur(5px); /* Hiệu ứng kính mờ sang chảnh */
+    opacity: 0; /* Ẩn đi, rê chuột vào thẻ phim mới hiện */
+}
+
+.movie-card:hover .btn-remove-lib {
+    opacity: 1;
+}
+
+.btn-remove-lib:hover {
+    background: #ff4d4d; /* Đỏ cảnh báo */
+    transform: scale(1.15);
+}
+
 /* =========================================
    10. GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE)
    ========================================= */
