@@ -30,15 +30,15 @@ body {
     animation: fadeInPage 0.35s ease-in-out forwards; 
 }
 
-@keyframes fadeInPage { 
-    from { 
-        opacity: 0; 
-        transform: translateY(15px); 
-    } 
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    } 
+@keyframes fadeInPage {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: none; /* Ma thuật nằm ở chữ "none" này nè */
+    }
 }
 
 .gradient-bg { 
@@ -1731,6 +1731,23 @@ body.dark-mode .popup-box {
     background: #1a1a2e; 
     border-color: #ff85a2; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+}
+
+/* --- FIX DARK MODE TRANG THÔNG TIN (DESCRIPTION) --- */
+body.dark-mode .details-container {
+    background: #1a1a2e !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid #2a2a35;
+}
+
+body.dark-mode .details-container .description,
+body.dark-mode .details-container .info-box p {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .details-container .tag {
+    background: rgba(255, 133, 162, 0.15) !important;
+    color: #ff85a2 !important;
 }
 
 /* =========================================
