@@ -163,20 +163,19 @@
                 if(userProfile) userProfile.style.display = 'flex';
                 if(bellContainer) bellContainer.style.display = 'flex';
 
-                // 2. Xử lý Tên hiển thị
+                // 2. Xử lý Tên hiển thị (Luôn luôn hiện)
                 let finalName = user.displayName || user.email.split('@')[0];
                 document.getElementById('user-name').innerText = finalName;
 
-                // 3. Xử lý Avatar (Bản nâng cấp)
+                // 3. Xử lý Avatar (Có ảnh thì hiện, không có ảnh thì ẨN LUÔN)
                 const avtElement = document.getElementById('user-avatar');
                 if(avtElement) {
                     if (user.photoURL) {
                         avtElement.src = user.photoURL;
+                        avtElement.style.display = 'block'; // Có ảnh -> Hiện
                     } else {
-                        // Nếu ko có ảnh, lấy ảnh mặc định của rạp MHEnt cho đồng bộ
-                        avtElement.src = 'assets/avt-web.jpg'; 
+                        avtElement.style.display = 'none'; // Không ảnh -> Ẩn hoàn toàn
                     }
-                    avtElement.style.display = 'block';
                 }
 
                 // 4. Check quyền Admin
