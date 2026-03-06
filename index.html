@@ -129,16 +129,26 @@
                 });
             }
 
-            // Lắng nghe trạng thái đăng nhập
+            // Theo dõi trạng thái Online/Offline (index.html)
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    if(btnLogin) btnLogin.style.display = 'none';
-                    if(userProfile) userProfile.style.display = 'flex';
-                    if(userName) userName.innerText = user.displayName;
-                    if(userAvatar) userAvatar.src = user.photoURL;
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
+                    
+                    // XỬ LÝ TÊN: Lấy displayName, nếu rỗng thì cưa đôi email lấy khúc đầu
+                    let finalName = user.displayName || user.email.split('@')[0];
+                    // XỬ LÝ ẢNH: Lấy photoURL, nếu rỗng thì dùng ảnh mặc định
+                    let finalAvatar = user.photoURL || 'assets/avt-web.jpg'; 
+
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
+                    if(document.getElementById('user-avatar')) document.getElementById('user-avatar').src = finalAvatar;
+                    
+                    loadNotifications();
                 } else {
-                    if(btnLogin) btnLogin.style.display = 'flex';
-                    if(userProfile) userProfile.style.display = 'none';
+                    if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
+                    if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
+                    if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'none';
                 }
             });
 
