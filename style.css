@@ -305,6 +305,7 @@ body {
    ========================================= */
 
 .hero { 
+    background: linear-gradient(135deg, #e0f7fa 0%, #ffe4e1 100%); /* Trả lại cái nền xinh xắn nè */
     padding: 80px 20px; 
     text-align: center; 
     gap: 15px; 
