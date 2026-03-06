@@ -1611,7 +1611,7 @@ body.dark-mode .loading-overlay {
 
 /* Tắt đèn khu vực Hero */
 body.dark-mode .hero { 
-    background: #0f0f16; /* Xóa gradient, ép về nền đen tiệp màu với web */
+    background: #242430; /* Xóa gradient, ép về nền đen tiệp màu với web */
 }
 
 body.dark-mode .hero h1 { 
