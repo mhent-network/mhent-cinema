@@ -23,34 +23,41 @@
                 <li><a onclick="window.location.href='about.html'" style="cursor: pointer;">Về chúng tớ</a></li>
                 
                 <li class="user-section">
-                    <div id="bell-container" style="display: none;">
-                        <div class="notif-bell" onclick="toggleNotif()">
-                            🔔 <span class="notif-dot"></span>
+                <div id="bell-container" style="display: none; position: relative;">
+                    <div class="notif-bell" onclick="toggleNotif()">
+                        🔔 <span class="notif-dot"></span>
+                    </div>
+                    <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
+                        <div class="notif-header">
+                            <span class="notif-title-text">Thông báo</span>
+                            <span class="notif-mark-read">Đánh dấu tất cả là đã đọc</span>
                         </div>
-                        <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
-                            <div class="notif-header">Thông báo mới</div>
-                            <div id="notif-list">
-                                </div>
+                        <div id="notif-list" class="notif-body">
+                            </div>
+                        <div class="notif-footer">
+                            <button class="btn-view-all">Xem tất cả ></button>
                         </div>
                     </div>
+                </div>
 
-                    <button id="btn-login" class="btn-login">Đăng nhập</button>
+                <button id="btn-login" class="btn-login">Đăng nhập</button>
 
-                    <div id="user-profile" class="user-profile" style="position: relative;">
-                        <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <img id="user-avatar" src="" alt="User" class="user-avatar">
-                            <span id="user-name" class="user-name">Tên User</span>
-                        </div>
-                        
-                        <div id="dropdown-account" class="dropdown-menu account-dropdown">
-                            <div class="dropdown-item">👤 My Profile</div>
-                            <div class="dropdown-item">⭐ Phim đã lưu</div>
-                            <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
-                            <hr style="border: 0.5px solid #2a2a35; margin: 0;">
-                            <div id="btn-logout" class="dropdown-item" style="color: #ff4d4d !important;">🚪 Thoát</div>
-                        </div>
+                <div id="user-profile" class="user-profile" style="position: relative; display: none;">
+                    <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <img id="user-avatar" src="" alt="User" class="user-avatar">
+                        <span id="user-name" class="user-name">Tên User</span>
                     </div>
-                </li>
+                    
+                    <div id="dropdown-account" class="dropdown-menu account-dropdown">
+                        <div class="dropdown-item">👤 Hồ sơ</div>
+                        <div class="dropdown-item">⭐ Thư viện</div>
+                        <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
+                        <div class="dropdown-item">⚙️ Cài đặt</div>
+                        <div class="dropdown-divider"></div>
+                        <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
+                    </div>
+                </div>
+            </li>
             </ul>
         </nav>
 

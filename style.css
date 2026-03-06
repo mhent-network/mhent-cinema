@@ -181,7 +181,7 @@ body {
     color: #1a1a2e; 
 }
 
-/* Notification & Dropdowns */
+/* Notification & Dropdowns (Style Yuri Garden) */
 .notif-bell { 
     position: relative; 
     font-size: 22px; 
@@ -200,19 +200,20 @@ body {
     right: -2px; 
     width: 10px; 
     height: 10px; 
-    background: red; 
+    background: #ff5277; 
     border-radius: 50%; 
-    border: 2px solid #1a1a2e; 
+    border: 2px solid #ffffff; 
 }
 
 .dropdown-menu { 
     position: absolute; 
-    top: 50px; 
-    right: 0; 
-    background: #16213e; 
-    border: 1px solid #ff85a2; 
-    border-radius: 10px; 
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
+    top: 55px; 
+    left: 50%; /* Ma thuật căn giữa 1 */
+    transform: translateX(-50%); /* Ma thuật căn giữa 2 */
+    background: #ffffff; /* Nền trắng tinh khôi */
+    border: 1px solid #ffe0e9; /* Viền hồng phấn */
+    border-radius: 12px; 
+    box-shadow: 0 5px 25px rgba(255, 133, 162, 0.15); /* Bóng đổ màu hồng nhạt */
     display: none; 
     z-index: 1000; 
     overflow: hidden; 
@@ -220,66 +221,90 @@ body {
 }
 
 @keyframes slideDown { 
-    from { 
-        opacity: 0; 
-        transform: translateY(-10px); 
-    } 
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    } 
+    from { opacity: 0; transform: translate(-50%, -10px); } 
+    to { opacity: 1; transform: translate(-50%, 0); } 
 }
 
+/* --- Dropdown Tài khoản --- */
 .account-dropdown { 
-    width: 180px; 
+    width: 200px; 
+    padding: 10px 0; 
 }
 
 .dropdown-item { 
-    padding: 12px 15px; 
-    color: white !important; 
+    padding: 12px 20px; 
+    color: #555 !important; 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
+    gap: 12px; 
     cursor: pointer; 
-    transition: 0.3s; 
+    transition: 0.2s; 
     font-size: 0.9rem; 
+    font-weight: 700; 
 }
 
 .dropdown-item:hover { 
-    background: #ff85a2; 
-    color: #1a1a2e !important; 
+    background: #fff0f3; /* Hover lên nền hồng nhạt */
+    color: #ff85a2 !important; /* Chữ đổi màu hồng */
 }
 
+.dropdown-divider {
+    height: 1px;
+    background: #ffe0e9;
+    margin: 5px 0;
+}
+
+/* --- Dropdown Thông báo --- */
 .notif-dropdown { 
-    width: 320px; 
-    max-height: 400px; 
-    overflow-y: auto; 
+    width: 360px; 
 }
 
 .notif-header { 
-    padding: 10px; 
-    font-weight: bold; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 15px 20px; 
+    border-bottom: 1px solid #ffe0e9; 
+    background: #ffffff;
+}
+
+.notif-title-text { 
+    font-weight: 800; 
+    font-size: 1rem; 
     color: #ff85a2; 
-    border-bottom: 1px solid #2a2a35; 
+}
+
+.notif-mark-read {
+    font-size: 0.75rem;
+    color: #ff85a2;
+    cursor: pointer;
+    font-weight: bold;
+}
+.notif-mark-read:hover { text-decoration: underline; }
+
+.notif-body { 
+    max-height: 350px; 
+    overflow-y: auto; 
 }
 
 .notif-item { 
     display: flex; 
-    padding: 10px; 
-    gap: 12px; 
-    border-bottom: 1px solid #2a2a35; 
-    transition: 0.3s; 
+    padding: 15px 20px; 
+    gap: 15px; 
+    border-bottom: 1px solid #fffafb; 
+    transition: 0.2s; 
     cursor: pointer; 
+    background: #ffffff;
 }
 
 .notif-item:hover { 
-    background: #0f3460; 
+    background: #fff0f3; 
 }
 
 .notif-poster { 
-    width: 60px; 
-    height: 85px; 
-    border-radius: 4px; 
+    width: 50px; 
+    height: 70px; 
+    border-radius: 6px; 
     object-fit: cover; 
 }
 
@@ -288,16 +313,42 @@ body {
 }
 
 .notif-title { 
-    font-weight: bold; 
+    font-weight: 800; 
     font-size: 0.85rem; 
-    color: #ff85a2; 
+    color: #555; 
     margin-bottom: 5px; 
 }
 
 .notif-desc { 
     font-size: 0.75rem; 
-    color: #ccc; 
-    line-height: 1.3; 
+    color: #888; 
+    line-height: 1.4; 
+}
+
+.notif-footer {
+    padding: 12px;
+    text-align: center;
+    border-top: 1px solid #ffe0e9;
+    background: #fff;
+}
+
+.btn-view-all {
+    background: #ff85a2;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    width: 90%;
+    transition: 0.2s;
+    font-family: 'Nunito', sans-serif;
+}
+
+.btn-view-all:hover { 
+    background: #ff5c8a; 
+    transform: translateY(-2px);
 }
 
 /* =========================================
@@ -1467,6 +1518,35 @@ body.dark-mode .footer-link:hover {
 
 body.dark-mode .loading-overlay { 
     background: #0f0f16; 
+}
+
+/* Fix Dropdown Sáng -> Tối */
+body.dark-mode .dropdown-menu,
+body.dark-mode .notif-header,
+body.dark-mode .notif-item,
+body.dark-mode .notif-footer { 
+    background: #1a1a2e !important; 
+    border-color: #2a2a35 !important; 
+}
+
+body.dark-mode .dropdown-divider { 
+    background: #2a2a35; 
+}
+
+body.dark-mode .dropdown-item,
+body.dark-mode .notif-title,
+body.dark-mode .notif-desc { 
+    color: #e0e0e0 !important; 
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .notif-item:hover { 
+    background: #0f3460 !important; 
+    color: #ff85a2 !important; 
+}
+
+body.dark-mode .notif-dot { 
+    border-color: #0f0f16; 
 }
 
 /* =========================================
