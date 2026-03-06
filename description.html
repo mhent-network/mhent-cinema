@@ -237,7 +237,7 @@
             window.shareMovie = function() {
                 const url = window.location.href;
                 navigator.clipboard.writeText(url).then(() => {
-                    alert("Đã copy link phim! Cậu gửi cho bạn bè ngay đi nhé 💖");
+                    showToast('Thông báo', 'Đã copy link phim! Cậu gửi cho bạn bè ngay đi nhé 💖', 'info');
                 });
             };
 
