@@ -97,7 +97,7 @@ body {
     font-weight: 700;
     color: #1a1a2e;
     font-size: 13.5px; /* Giảm size chữ xuống cho cute */
-    max-width: 100px; /* Giới hạn độ dài tên */
+
     overflow: hidden;
     text-overflow: ellipsis; /* Tên dài quá thì hiện dấu ... */
 }
