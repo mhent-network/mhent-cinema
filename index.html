@@ -144,48 +144,55 @@
             // Theo dõi trạng thái Online/Offline
             // --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP (BẢN FIX LỖI HIỂN THỊ) ---
             onAuthStateChanged(auth, (user) => {
-                // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
-                const ADMIN_EMAILS = [
-                    "miyazakiharuto64@gmail.com", 
-                    "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
-                ];
-            
-                const btnTheme = document.getElementById('btn-theme-toggle'); 
-                if (user) {
-                    // 1. Hiện Navbar User và Chuông
-                    document.getElementById('btn-login').style.display = 'none';
-                    if(btnTheme) btnTheme.style.display = 'none'; 
-                    document.getElementById('user-profile').style.display = 'flex';
-                    document.getElementById('bell-container').style.display = 'block';
+            // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+            const ADMIN_EMAILS = [
+                "miyazakiharuto64@gmail.com", 
+                "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
+            ];
+        
+            const btnTheme = document.getElementById('btn-theme-toggle'); 
+            const adminBtn = document.getElementById('admin-panel-btn');
+            const userProfile = document.getElementById('user-profile');
+            const bellContainer = document.getElementById('bell-container');
+            const btnLogin = document.getElementById('btn-login');
 
-                    // 2. Xử lý Tên hiển thị (Nếu null thì lấy phần đầu email)
-                    let finalName = user.displayName || user.email.split('@')[0];
-                    document.getElementById('user-name').innerText = finalName;
+            if (user) {
+                // 1. Hiện/Ẩn các thành phần Navbar
+                if(btnLogin) btnLogin.style.display = 'none';
+                if(btnTheme) btnTheme.style.display = 'none'; 
+                if(userProfile) userProfile.style.display = 'flex';
+                if(bellContainer) bellContainer.style.display = 'flex';
 
-                    // 3. Xử lý Avatar (Nếu null thì lấy logo web làm mặc định)
-                    const avtElement = document.getElementById('user-avatar');
-                    if(avtElement) {
-                        avtElement.src = user.photoURL || 'assets/avt-web.jpg'; // Dùng logo web nếu ko có ảnh
-                        avtElement.style.display = 'block';
+                // 2. Xử lý Tên hiển thị
+                let finalName = user.displayName || user.email.split('@')[0];
+                document.getElementById('user-name').innerText = finalName;
+
+                // 3. Xử lý Avatar (Bản nâng cấp)
+                const avtElement = document.getElementById('user-avatar');
+                if(avtElement) {
+                    if (user.photoURL) {
+                        avtElement.src = user.photoURL;
+                    } else {
+                        // Nếu ko có ảnh, lấy ảnh mặc định của rạp MHEnt cho đồng bộ
+                        avtElement.src = 'assets/avt-web.jpg'; 
                     }
-
-                    // 4. Kiểm tra quyền Admin để hiện nút
-                    const adminBtn = document.getElementById('admin-panel-btn');
-                    if (adminBtn) {
-                        adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'block' : 'none';
-                    }
-
-                    // 5. Load thông báo cho chuông
-                    if (typeof loadNotifications === "function") loadNotifications();
-
-                } else {
-                    // --- CHƯA ĐĂNG NHẬP ---
-                    document.getElementById('btn-login').style.display = 'flex';
-                    if(btnTheme) btnTheme.style.display = 'flex'; 
-                    document.getElementById('user-profile').style.display = 'none';
-                    document.getElementById('bell-container').style.display = 'none';
+                    avtElement.style.display = 'block';
                 }
-            });
+
+                // 4. Check quyền Admin
+                if (adminBtn) {
+                    adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
+                }
+
+                if (typeof loadNotifications === "function") loadNotifications();
+
+            } else {
+                if(btnLogin) btnLogin.style.display = 'flex';
+                if(btnTheme) btnTheme.style.display = 'flex'; 
+                if(userProfile) userProfile.style.display = 'none';
+                if(bellContainer) bellContainer.style.display = 'none';
+            }
+        });
 
             // ==========================================
             // 2. HỆ THỐNG TẢI PHIM (Bảo vệ độc lập)

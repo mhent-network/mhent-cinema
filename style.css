@@ -76,13 +76,39 @@ body {
 .btn-login { display: flex; align-items: center; gap: 8px; background: #e94560; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; font-family: 'Nunito', sans-serif; transition: 0.2s; }
 .btn-login:hover { background: #ff85a2; transform: translateY(-2px); }
 
-.user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #ff85a2; }
-.user-name { font-weight: 700; color: #1a1a2e; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.3s; font-size: 14px; }
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách vừa phải giữa ảnh và tên */
+    cursor: pointer;
+    white-space: nowrap; /* Ép tên không được xuống dòng */
+}
+
+.user-avatar {
+    width: 32px; /* Thu nhỏ ảnh lại chút cho tinh tế */
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff85a2;
+    flex-shrink: 0; /* Không cho ảnh bị bóp méo */
+}
+
+.user-name {
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 13.5px; /* Giảm size chữ xuống cho cute */
+    max-width: 100px; /* Giới hạn độ dài tên */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Tên dài quá thì hiện dấu ... */
+}
 .user-profile:hover .user-name { color: #e94560; }
 
 /* Notification & Dropdowns */
-.notif-bell { position: relative; font-size: 20px; color: #ff85a2; cursor: pointer; transition: 0.3s; }
+.notif-bell {
+    font-size: 18px; 
+    display: flex;
+    align-items: center;
+}
 .notif-bell:hover { transform: scale(1.1); }
 .notif-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ff5277; border-radius: 50%; border: 2px solid #ffffff; }
 
