@@ -688,6 +688,83 @@ body {
     transform: translateY(-3px); 
 }
 
+/* --- Nút phụ: Lưu & Chia sẻ --- */
+.btn-outline { 
+    background: transparent; 
+    border: 2px solid #ff85a2; 
+    color: #ff85a2; 
+}
+.btn-outline:hover { 
+    background: #ff85a2; 
+    color: white; 
+    transform: translateY(-3px); 
+}
+
+/* --- Danh sách tập phim (Style Yuri Garden) --- */
+.ep-list-wrapper { 
+    margin-top: 40px; 
+    width: 100%; 
+}
+.ep-list-title { 
+    font-size: 20px; 
+    color: #ff85a2; 
+    font-weight: 900; 
+    margin-bottom: 15px; 
+    border-bottom: 2px solid #ffe0e9; 
+    padding-bottom: 10px; 
+}
+.ep-list-container { 
+    display: flex; 
+    flex-direction: column; 
+}
+.ep-list-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 15px 20px; 
+    border-bottom: 1px solid #f0f0f0; 
+    text-decoration: none; 
+    transition: all 0.3s ease; 
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+.ep-list-item:hover { 
+    background: #fff0f3; 
+    padding-left: 25px; /* Hiệu ứng trượt nhẹ */
+    box-shadow: 0 4px 10px rgba(255, 133, 162, 0.1);
+}
+.ep-item-left { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+}
+.ep-name { 
+    font-weight: 800; 
+    color: #555; 
+    font-size: 15px; 
+}
+.ep-subtext { 
+    font-size: 12px; 
+    color: #999; 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+}
+.ep-item-right { 
+    color: #ff85a2; 
+    font-weight: bold; 
+    font-size: 14px; 
+    opacity: 0; /* Ẩn nút xem, hover mới hiện */
+    transition: 0.3s;
+}
+.ep-list-item:hover .ep-item-right { 
+    opacity: 1; 
+    transform: translateX(-5px);
+}
+.ep-list-item:hover .ep-name { 
+    color: #ff85a2; 
+}
+
 /* Popup Trailer */
 .modal { 
     display: none; 
@@ -1748,6 +1825,33 @@ body.dark-mode .details-container .info-box p {
 body.dark-mode .details-container .tag {
     background: rgba(255, 133, 162, 0.15) !important;
     color: #ff85a2 !important;
+}
+
+/* Dark Mode cho Danh sách tập & Nút outline */
+body.dark-mode .btn-outline { 
+    border-color: #ff85a2; 
+    color: #ff85a2; 
+}
+
+body.dark-mode .btn-outline:hover { 
+    background: #ff85a2; 
+    color: #1a1a2e; 
+}
+
+body.dark-mode .ep-list-title { 
+    border-color: #2a2a35; 
+}
+
+body.dark-mode .ep-list-item { 
+    border-color: #2a2a35; 
+}
+
+body.dark-mode .ep-name { 
+    color: #ccc; 
+}
+
+body.dark-mode .ep-list-item:hover { 
+    background: rgba(255, 133, 162, 0.1); 
 }
 
 /* =========================================
