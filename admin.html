@@ -6,9 +6,25 @@
         <title>MHEnt. - Admin Panel V5</title>
         <style>
             body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: white; padding: 20px; }
-            .admin-container { max-width: 600px; margin: 0 auto; background: #16213e; padding: 30px; border-radius: 10px; border: 2px solid #ff85a2; box-shadow: 0 0 15px rgba(255, 133, 162, 0.3); }
-            h1 { color: #ff85a2; text-align: center; margin-bottom: 20px; }
+            .admin-container { max-width: 600px; margin: 0 auto; background: #16213e; padding: 30px; border-radius: 10px; border: 2px solid #ff85a2; box-shadow: 0 0 15px rgba(255, 133, 162, 0.3); position: relative; }
+            h1 { color: #ff85a2; text-align: center; margin-bottom: 20px; margin-top: 10px; }
             
+            /* --- NÚT QUAY LẠI TRANG CHỦ --- */
+            .btn-back-admin {
+                display: inline-block;
+                color: #ff85a2;
+                text-decoration: none;
+                font-weight: 900;
+                font-size: 14px;
+                transition: 0.3s ease;
+                cursor: pointer;
+                margin-bottom: 15px;
+            }
+            .btn-back-admin:hover {
+                color: #ffb703; /* Đổi sang màu vàng khi di chuột cho ngầu */
+                transform: translateX(-5px);
+            }
+
             /* GIAO DIỆN CHUYỂN TAB */
             .tab-container { display: flex; margin-bottom: 25px; border-radius: 8px; overflow: hidden; border: 1px solid #ff85a2; }
             .tab-btn { flex: 1; padding: 12px; background: #1a1a2e; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; }
@@ -54,6 +70,8 @@
     </head>
     <body>
         <div class="admin-container">
+            <a onclick="window.location.href='index.html'" class="btn-back-admin">⬅ Quay lại Trang chủ</a>
+
             <h1>🛠️ TRUNG TÂM ĐIỀU KHIỂN</h1>
 
             <div class="tab-container">
@@ -185,8 +203,9 @@
         </div>
 
         <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-            import { getFirestore, doc, setDoc, updateDoc, arrayUnion, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+            import { getFirestore, doc, setDoc, updateDoc, arrayUnion, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyASwAr10eyPVw7dqPG78UIVVFiixDe-Nfg",
@@ -200,6 +219,21 @@
 
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+            const auth = getAuth(app);
+            
+            // --- KIỂM TRA QUYỀN ADMIN ---
+            const ADMIN_EMAILS = ["miyazakiharuto64@gmail.com"]; 
+
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                } else if (!ADMIN_EMAILS.includes(user.email)) {
+                    alert("Khu vực cấm! Cậu không có quyền truy cập vào đây nha ❌");
+                    window.location.href = 'index.html';
+                } else {
+                    console.log("Welcome back, Chủ tịch Lam Chi! 👑");
+                }
+            });
 
             // --- HỆ THỐNG CHUYỂN TAB ---
             function switchTab(activeBtnId, activeTabId) {
@@ -220,7 +254,6 @@
                 try {
                     const querySnapshot = await getDocs(collection(db, "movies"));
                     selects.forEach(select => {
-                        // Giữ lại giá trị đang chọn (nếu có)
                         const currentValue = select.value; 
                         select.innerHTML = '<option value="">-- Chọn phim --</option>';
                         querySnapshot.forEach((doc) => {
@@ -228,7 +261,6 @@
                             opt.value = doc.id; opt.textContent = doc.data().title;
                             select.appendChild(opt);
                         });
-                        // Phục hồi lại giá trị đang chọn (giúp tab Đăng tập không bị mất selection khi load lại)
                         if(currentValue) select.value = currentValue;
                     });
                 } catch (error) { console.error("Lỗi:", error); }
@@ -256,7 +288,6 @@
                     });
                     showPopup("✅ Tạo phim thành công!"); 
                     
-                    // CLEAR FORM TẠO PHIM
                     document.getElementById('input-id').value = '';
                     document.getElementById('input-title').value = '';
                     document.getElementById('input-alttitle').value = '';
@@ -267,13 +298,13 @@
                     document.getElementById('input-type').selectedIndex = 0;
                     document.getElementById('input-status').selectedIndex = 0;
                     
-                    loadMovies(); // Cập nhật lại danh sách dropdown
+                    loadMovies(); 
                 } catch (error) { showPopup("❌ Lỗi: " + error.message, true); } 
                 finally { document.getElementById('loading-movie').style.display = 'none'; }
             });
 
             // ==============================================
-            // LOGIC TAB 2: ĐĂNG TẬP (CÓ CLEAR TẬP, GIỮ TÊN PHIM)
+            // LOGIC TAB 2: ĐĂNG TẬP 
             // ==============================================
             document.getElementById('btn-add-episode').addEventListener('click', async () => {
                 const epMovieId = document.getElementById('ep-movie-id').value;
@@ -291,7 +322,6 @@
                     });
                     showPopup("✅ Đăng tập thành công!");
                     
-                    // CLEAR FORM ĐĂNG TẬP (Cố tình không clear epMovieId để đăng tiếp tập khác cho nhanh)
                     document.getElementById('ep-title').value = '';
                     document.getElementById('ep-vip').value = '';
                     document.getElementById('ep-dp1').value = '';
@@ -433,26 +463,6 @@
                 document.getElementById('custom-popup').style.display = 'none';
             };
 
-            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-            // ... (Các import khác của trang admin)
-
-            const auth = getAuth(app);
-            const ADMIN_EMAILS = ["miyazakiharuto64@gmail.com"]; // Copy y chang cái mảng bên kia qua
-
-            onAuthStateChanged(auth, (user) => {
-                if (!user) {
-                    // Chưa đăng nhập -> Đá ra trang login
-                    window.location.href = 'login.html';
-                } else if (!ADMIN_EMAILS.includes(user.email)) {
-                    // Có đăng nhập nhưng KHÔNG PHẢI ADMIN -> Đá về trang chủ
-                    alert("Khu vực cấm! Cậu không có quyền truy cập vào đây nha ❌");
-                    window.location.href = 'index.html';
-                } else {
-                    // LÀ ADMIN CHÍNH HIỆU -> Hiển thị nội dung trang Admin
-                    console.log("Welcome back, Chủ tịch Lam Chi! 👑");
-                    // Ở đây cậu gọi các hàm load dữ liệu của trang Admin nhé
-                }
-            });
         </script>
     </body>
 </html>
