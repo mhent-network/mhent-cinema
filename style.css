@@ -126,8 +126,8 @@ body {
 
 /* FLUID LAYOUT CHO TRANG CHỦ */
 .movie-section { 
-    max-width: 1200px; 
-    width: 92%; 
+    max-width: 1800px; /* Thả xích luôn, tăng lên 1800px */
+    width: 95%; /* Tràn ra chừa mỗi bên 2.5% lề */
     margin: 0 auto; 
     padding: 40px 0; 
 }
@@ -156,8 +156,8 @@ body {
 
 /* FLUID LAYOUT CHO DETAILS */
 .back-btn-wrapper { 
-    max-width: 1200px; 
-    width: 92%; 
+    max-width: 1800px; /* Thả xích */
+    width: 95%; 
     margin: 100px auto -20px; 
     padding: 0; 
 }
@@ -167,8 +167,8 @@ body {
 .details-container { 
     display: flex; 
     gap: 35px; 
-    max-width: 1200px; 
-    width: 92%; 
+    max-width: 1800px; /* Thả xích */
+    width: 95%; 
     margin: 40px auto 60px; 
     background: white; 
     padding: 30px 4%; 
@@ -225,8 +225,8 @@ body {
 
 /* FLUID LAYOUT CHO WATCH */
 .watch-container { 
-    max-width: 1200px; 
-    width: 92%;
+    max-width: 1800px; /* Thả xích rạp phim */
+    width: 95%; 
     margin: 85px auto 50px; 
     padding: 0; 
 }
