@@ -380,6 +380,24 @@ body {
     transform: translateY(-5px); 
 }
 
+.bg-blue { 
+    background-color: #aed9e0; 
+}
+.bg-pink { 
+    background-color: #ffb7b2; 
+}
+.bg-gray { 
+    background-color: #e2e2e2; 
+}
+
+.placeholder-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-weight: bold;
+}
+
 .movie-info { 
     padding-top: 15px; 
     text-align: left; 
