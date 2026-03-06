@@ -113,6 +113,7 @@
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
             import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
             import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+            import { getFirestore, doc, getDoc, setDoc, arrayUnion, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyASwAr10eyPVw7dqPG78UIVVFiixDe-Nfg",
@@ -241,21 +242,36 @@
                 });
             };
 
-            window.saveToLibrary = function(movieId) {
+            // --- HÀM LƯU PHIM VÀO FIREBASE (HÀNG REAL) ---
+            window.saveToLibrary = async function(movieId) {
                 const user = auth.currentUser; 
-                if (!user) { alert('Cậu cần đăng nhập để lưu phim nhé!'); return; }
-
-                const saveBtn = document.getElementById('btn-save-movie');
-                if(saveBtn) {
-                    saveBtn.innerHTML = '✔️ Đã lưu';
-                    saveBtn.style.background = '#ff85a2';
-                    saveBtn.style.color = 'white';
+                if (!user) { 
+                    // Xóa alert('Cậu cần đăng nhập...'); thay bằng:
+                    showToast('Lỗi', 'Cậu cần đăng nhập để lưu phim!', 'error');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500); // Đợi 1.5s rồi hãy đá sang login
+                    return; 
                 }
-                alert('Đã lưu vào Thư viện! Tớ sẽ báo cậu khi có tập mới 🔔');
+
+                const userRef = doc(db, "users", user.uid);
+                try {
+                    await setDoc(userRef, { savedMovies: arrayUnion(movieId) }, { merge: true });
+
+                    const saveBtn = document.getElementById('btn-save-movie');
+                    if(saveBtn) {
+                        saveBtn.innerHTML = '✔️ Đã lưu';
+                        saveBtn.style.background = '#ff85a2';
+                        saveBtn.style.color = 'white';
+                    }
+                    // Xóa alert('Đã lưu thành công...'); thay bằng:
+                    showToast('Thành công', 'Đã thêm vào thư viện', 'success'); // Y chang chữ của Yuri Garden luôn
+                    
+                } catch (error) {
+                    showToast('Thất bại', 'Không thể lưu phim lúc này.', 'error');
+                }
             };
 
             // ==========================================
-            // LÕI HỆ THỐNG DÙNG CHUNG (NAVBAR, DARK MODE, USER)
+            // LÕI HỆ THỐNG DÙNG CHUNG (NAVBAR, DARK MODE, USER, TOAST NOTIFICATION)
             // ==========================================
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
@@ -347,6 +363,41 @@
                         notifList.innerHTML += item;
                     });
                 } catch (e) { notifList.innerHTML = '<p style="padding:10px;">Chưa có thông báo nào...</p>'; }
+            };
+
+            window.showToast = function(title, message, type = 'success') {
+                // Tạo cái hộp chứa nếu chưa có
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                // Tạo thẻ thông báo
+                const toast = document.createElement('div');
+                toast.className = `toast-msg ${type}`;
+                
+                // Chọn icon theo loại
+                let icon = '✅';
+                if (type === 'error') icon = '❌';
+                else if (type === 'info') icon = '⭐';
+
+                toast.innerHTML = `
+                    <div class="toast-icon">${icon}</div>
+                    <div class="toast-content">
+                        <span class="toast-title">${title}</span>
+                        <span class="toast-desc">${message}</span>
+                    </div>
+                `;
+
+                container.appendChild(toast);
+
+                // Tự động bay màu sau 3 giây
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOutRight 0.3s ease-in forwards';
+                    setTimeout(() => { toast.remove(); }, 300); 
+                }, 3000);
             };
 
             // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
