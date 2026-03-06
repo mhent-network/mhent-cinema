@@ -1268,7 +1268,7 @@ body.dark-mode .user-name {
 }
 .dropdown-item:hover { background: #ff85a2; color: #1a1a2e !important; }
 
-/* Dropdown Thông báo (Dựa trên image_214ec3.png) */
+/* Dropdown Thông báo */
 .notif-dropdown { width: 320px; max-height: 400px; overflow-y: auto; }
 .notif-header { padding: 10px; font-weight: bold; color: #ff85a2; border-bottom: 1px solid #2a2a35; }
 .notif-item {
