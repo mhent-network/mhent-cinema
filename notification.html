@@ -48,7 +48,7 @@
             
             <li class="user-section">
                 <div id="bell-container" style="display: none; position: relative;">
-                    <div class="notif-bell" onclick="toggleNotif()">
+                    <div class="notif-bell" onclick="toggleNotif()" style="cursor: pointer;">
                         🔔 <span class="notif-dot"></span>
                     </div>
                     <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
@@ -185,6 +185,8 @@
 
         onAuthStateChanged(auth, async (user) => {
             const btnTheme = document.getElementById('btn-theme-toggle'); 
+            
+            // XỬ LÝ NẾU CHƯA ĐĂNG NHẬP
             if (!user) {
                 document.getElementById('btn-login').style.display = 'flex';
                 if(btnTheme) btnTheme.style.display = 'flex'; 
@@ -196,25 +198,42 @@
                 return;
             }
 
-            // Gắn thông tin User
+            // XỬ LÝ NẾU ĐÃ ĐĂNG NHẬP
             document.getElementById('btn-login').style.display = 'none';
             if(btnTheme) btnTheme.style.display = 'none'; 
             document.getElementById('user-profile').style.display = 'flex';
             document.getElementById('bell-container').style.display = 'block';
-            document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
-            if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
 
-            // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
-            const adminBtn = document.getElementById('admin-panel-btn');
-            if (adminBtn) {
-                if (ADMIN_EMAILS.includes(user.email)) {
-                    adminBtn.style.display = 'block'; 
+            // Xử lý Tên An Toàn
+            let finalName = "Khách";
+            if (user.displayName && user.displayName.trim() !== "") {
+                finalName = user.displayName;
+            } else if (user.email) {
+                finalName = user.email.split('@')[0];
+            }
+            if (document.getElementById('user-name')) {
+                document.getElementById('user-name').innerText = finalName;
+            }
+
+            // Xử lý Avatar Dứt Khoát (Ẩn/Hiện)
+            const avtElement = document.getElementById('user-avatar');
+            if (avtElement) {
+                if (user.photoURL && user.photoURL.trim() !== "") {
+                    avtElement.src = user.photoURL;
+                    avtElement.style.display = 'block';
                 } else {
-                    adminBtn.style.display = 'none'; 
+                    avtElement.src = "";
+                    avtElement.style.display = 'none';
                 }
             }
 
-            // Load thông báo cho Dropdown nhỏ (Trên Navbar)
+            // Nút Admin
+            const adminBtn = document.getElementById('admin-panel-btn');
+            if (adminBtn) {
+                adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
+            }
+
+            // Load thông báo cho Dropdown nhỏ
             if (typeof loadNotifications === "function") loadNotifications();
 
             // Load dữ liệu cho trang chính
