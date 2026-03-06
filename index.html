@@ -25,7 +25,7 @@
                 <li class="user-section">
                 <div id="bell-container" style="display: none; position: relative;">
                     <div class="notif-bell" onclick="toggleNotif()">
-                        🔔 <span class="notif-dot"></span>
+                        🔔 <span class="notif-dot" style="display: none;"></span>
                     </div>
                     <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
                         <div class="notif-header">
@@ -45,9 +45,9 @@
                 <button id="btn-login" class="btn-login">Đăng nhập</button>
 
                 <div id="user-profile" class="user-profile" style="position: relative; display: none;">
-                    <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <img id="user-avatar" src="" alt="User" class="user-avatar">
-                        <span id="user-name" class="user-name">Tên User</span>
+                    <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <img id="user-avatar" src="" alt="" class="user-avatar" style="display: none;">
+                        <span id="user-name" class="user-name">Đang tải...</span>
                     </div>
                     
                     <div id="dropdown-account" class="dropdown-menu account-dropdown">
@@ -119,32 +119,51 @@
             const auth = getAuth(app);
 
             // ==========================================
-            // 1. HỆ THỐNG USER (AVATAR & NÚT LOGIN)
+            // 1. HỆ THỐNG USER & NAVBAR
             // ==========================================
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
-            const userProfile = document.getElementById('user-profile');
-            const userAvatar = document.getElementById('user-avatar');
-            const userName = document.getElementById('user-name');
 
-            // Chuyển sang trang login khi bấm nút Đăng Nhập
-            if (btnLogin) {
-                btnLogin.addEventListener('click', () => {
-                    window.location.href = 'login.html';
-                });
+            if (btnLogin) { btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; }); }
+            if (btnLogout) { btnLogout.addEventListener('click', async () => { await signOut(auth); }); }
+
+            window.toggleAccount = function() {
+                const acc = document.getElementById('dropdown-account');
+                const notif = document.getElementById('dropdown-notif');
+                if(notif) notif.classList.remove('show'); 
+                if(acc) acc.classList.toggle('show');
+            };
+
+            window.toggleNotif = function() {
+                const notif = document.getElementById('dropdown-notif');
+                const acc = document.getElementById('dropdown-account');
+                if(acc) acc.classList.remove('show'); 
+                if(notif) notif.classList.toggle('show');
+            };
+
+            window.onclick = function(event) {
+                if (!event.target.closest('.user-section')) {
+                    const acc = document.getElementById('dropdown-account');
+                    const notif = document.getElementById('dropdown-notif');
+                    if(acc) acc.classList.remove('show');
+                    if(notif) notif.classList.remove('show');
+                }
+            };
+
+            window.toggleDarkMode = function() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('mhent_dark_mode', isDark ? 'on' : 'off');
+            };
+
+            if (localStorage.getItem('mhent_dark_mode') === 'on') {
+                document.body.classList.add('dark-mode');
             }
 
-            if (btnLogout) {
-                btnLogout.addEventListener('click', async () => {
-                    await signOut(auth);
-                });
-            }
-
-            // Theo dõi trạng thái Online/Offline
-            // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+            // --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP (LÕI XỊN CHỐNG GÃY) ---
             const ADMIN_EMAILS = [
                 "miyazakiharuto64@gmail.com", 
-                "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
+                "email_du_phong_cua_lam_chi@gmail.com" 
             ];
         
             onAuthStateChanged(auth, (user) => {
@@ -152,13 +171,11 @@
                 const adminBtn = document.getElementById('admin-panel-btn');
 
                 if (user) {
-                    // 1. Hiện Navbar
                     if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
                     if(btnTheme) btnTheme.style.display = 'none'; 
                     if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
                     if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
 
-                    // 2. Logic Lấy Tên An Toàn (Có tên lấy tên, không tên lấy email, không email lấy chữ 'Khách')
                     let finalName = "Khách";
                     if (user.displayName && user.displayName.trim() !== "") {
                         finalName = user.displayName;
@@ -169,18 +186,17 @@
                         document.getElementById('user-name').innerText = finalName;
                     }
 
-                    // 3. Logic Ẩn/Hiện Avatar chuẩn xác
                     const avtElement = document.getElementById('user-avatar');
                     if (avtElement) {
                         if (user.photoURL && user.photoURL.trim() !== "") {
                             avtElement.src = user.photoURL;
-                            avtElement.style.display = 'block'; // Có ảnh xịn -> Bật lên
+                            avtElement.style.display = 'block'; 
                         } else {
-                            avtElement.style.display = 'none'; // Không ảnh -> Giấu nhẹm
+                            avtElement.src = "";
+                            avtElement.style.display = 'none'; 
                         }
                     }
 
-                    // 4. Check Admin
                     if (adminBtn) {
                         adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
                     }
@@ -188,7 +204,6 @@
                     if (typeof loadNotifications === "function") loadNotifications();
 
                 } else {
-                    // --- CHƯA ĐĂNG NHẬP ---
                     if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'flex';
                     if(btnTheme) btnTheme.style.display = 'flex'; 
                     if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
@@ -197,7 +212,7 @@
             });
             
             // ==========================================
-            // 2. HỆ THỐNG TẢI PHIM (Bảo vệ độc lập)
+            // 2. HỆ THỐNG TẢI PHIM TỪ MÂY
             // ==========================================
             document.addEventListener("DOMContentLoaded", async function() {
                 const container = document.getElementById('movie-list-container');
@@ -207,12 +222,8 @@
 
                 try {
                     const querySnapshot = await getDocs(collection(db, "movies"));
-                    
                     let danhSachPhim = [];
-                    querySnapshot.forEach((doc) => {
-                        danhSachPhim.push({ id: doc.id, ...doc.data() });
-                    });
-
+                    querySnapshot.forEach((doc) => { danhSachPhim.push({ id: doc.id, ...doc.data() }); });
                     danhSachPhim.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
                     container.innerHTML = ''; 
@@ -220,7 +231,6 @@
                     danhSachPhim.forEach((movie) => {
                         let currentStatus = "";
                         const epCount = movie.episodes ? movie.episodes.length : 0;
-                        
                         if (movie.type === 'movie') {
                             currentStatus = epCount > 0 ? "Current: Full" : "Current: None";
                         } else {
@@ -241,7 +251,6 @@
                         `;
                         container.innerHTML += cardHTML;
                     });
-
                     container.appendChild(comingSoon);
 
                 } catch (error) {
@@ -251,68 +260,7 @@
             });
 
             // ==========================================
-            // 3. HỆ THỐNG ĐĂNG NHẬP 
-            // ==========================================
-            // --- ĐIỀU KHIỂN DROPDOWN ---
-            // Mở/Đóng siêu mượt bằng classList
-            window.toggleAccount = function() {
-                const acc = document.getElementById('dropdown-account');
-                const notif = document.getElementById('dropdown-notif');
-                if(notif) notif.classList.remove('show'); // Đóng notif nếu đang mở
-                if(acc) acc.classList.toggle('show');
-            };
-
-            window.toggleNotif = function() {
-                const notif = document.getElementById('dropdown-notif');
-                const acc = document.getElementById('dropdown-account');
-                if(acc) acc.classList.remove('show'); // Đóng account nếu đang mở
-                if(notif) notif.classList.toggle('show');
-            };
-
-            // Bấm ra ngoài là tự động thu vòi lại
-            window.onclick = function(event) {
-                if (!event.target.closest('.user-section')) {
-                    const acc = document.getElementById('dropdown-account');
-                    const notif = document.getElementById('dropdown-notif');
-                    if(acc) acc.classList.remove('show');
-                    if(notif) notif.classList.remove('show');
-                }
-            };
-
-            if (btnLogin) { btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; }); }
-            if (btnLogout) { btnLogout.addEventListener('click', async () => { await signOut(auth); }); }
-
-            // --- TÍNH NĂNG DARK MODE SIÊU CẤP ---
-            window.toggleDarkMode = function() {
-                document.body.classList.toggle('dark-mode');
-                // Lưu lựa chọn vào bộ nhớ trình duyệt để qua trang khác không bị mất
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('mhent_dark_mode', isDark ? 'on' : 'off');
-            };
-
-            // Tự động kiểm tra lúc tải trang xem user có đang bật Dark Mode không
-            if (localStorage.getItem('mhent_dark_mode') === 'on') {
-                document.body.classList.add('dark-mode');
-            }
-
-            // Cập nhật lại onAuthStateChanged để hiện chuông
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    document.getElementById('btn-login').style.display = 'none';
-                    document.getElementById('user-profile').style.display = 'flex';
-                    document.getElementById('bell-container').style.display = 'block'; // Hiện chuông
-                    document.getElementById('user-name').innerText = user.displayName;
-                    document.getElementById('user-avatar').src = user.photoURL;
-                    loadNotifications(); // Tải thông báo ngay khi login
-                } else {
-                    document.getElementById('btn-login').style.display = 'flex';
-                    document.getElementById('user-profile').style.display = 'none';
-                    document.getElementById('bell-container').style.display = 'none';
-                }
-            });
-
-            // ==========================================
-            // 🔔 HỆ THỐNG THÔNG BÁO V4 (ĐIỀU HƯỚNG THÔNG MINH)
+            // 3. 🔔 HỆ THỐNG THÔNG BÁO V4 (ĐIỀU HƯỚNG THÔNG MINH)
             // ==========================================
             window.currentLoadedNotifs = [];
 
@@ -355,16 +303,13 @@
                     notifList.innerHTML = '';
                     
                     myNotifMovies.slice(0, 5).forEach(movie => {
-                        // --- LOGIC ĐIỀU HƯỚNG THÔNG MINH NẰM Ở ĐÂY ---
                         const hasEpisodes = movie.episodes && movie.episodes.length > 0;
                         const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
                         const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
                         
-                        // Nếu có tập -> Bắn sang Watch. Nếu không có tập -> Bắn sang Description
                         const targetUrl = hasEpisodes 
                             ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` 
                             : `description.html?id=${movie.id}`;
-                        // ---------------------------------------------
 
                         let movieTime = movie.updatedAt || 0;
                         let isUnread = false;
@@ -375,7 +320,6 @@
 
                         const itemClass = isUnread ? "notif-item unread" : "notif-item";
 
-                        // Truyền thẳng cái link targetUrl vào hàm
                         const item = `
                             <div class="${itemClass}" onclick="markAsReadAndGo('${movie.id}', ${movieTime}, '${targetUrl}')">
                                 <img src="${movie.poster}" class="notif-poster">
@@ -393,7 +337,6 @@
                 } catch (e) { console.error("Lỗi:", e); }
             };
 
-            // Hàm cập nhật trí nhớ và bay tới link tương ứng
             window.markAsReadAndGo = function(movieId, movieTime, targetUrl) {
                 const user = auth.currentUser;
                 if(user) {
@@ -401,9 +344,10 @@
                     readHistory[movieId] = movieTime; 
                     localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
                 }
-                window.location.href = targetUrl; // Chạy theo link thông minh
+                window.location.href = targetUrl; 
             };
 
+            // Đã dọn dẹp hàm thừa, chỉ giữ lại 1 bản chuẩn
             window.markAllAsRead = function() {
                 const user = auth.currentUser;
                 if(!user || !window.currentLoadedNotifs) return;
@@ -414,23 +358,6 @@
                 });
                 localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
 
-                document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
-                const dot = document.querySelector('.notif-dot');
-                if(dot) dot.style.display = 'none';
-            };
-
-            // Hàm: Đánh dấu tất cả là đã đọc (Gắn cái này vào nút "Đánh dấu tất cả" trên HTML)
-            window.markAllAsRead = function() {
-                const user = auth.currentUser;
-                if(!user || !window.currentLoadedNotifs) return;
-
-                let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-                window.currentLoadedNotifs.forEach(movie => {
-                    readHistory[movie.id] = movie.updatedAt || 0;
-                });
-                localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
-
-                // Cập nhật giao diện ngay lập tức
                 document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
                 const dot = document.querySelector('.notif-dot');
                 if(dot) dot.style.display = 'none';
