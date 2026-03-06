@@ -10,7 +10,8 @@
    7. Trang Đăng Nhập & Popup
    8. Chế độ tối (Dark Mode)
    9. HỆ THỐNG THÔNG BÁO NGANG (TOAST NOTIFICATION)
-   10. Giao diện Điện thoại (Mobile)
+   10. Trang Hồ sơ & Cài đặt (Profile & Settings)
+   11. Giao diện Điện thoại (Mobile)
    ========================================= */
 
 /* =========================================
@@ -571,7 +572,188 @@ body.dark-mode .toast-desc {
 }
 
 /* =========================================
-   10. GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE)
+   10. TRANG HỒ SƠ & CÀI ĐẶT (PROFILE & SETTINGS)
+   ========================================= */
+.profile-container {
+    max-width: 800px;
+    width: 92%;
+    margin: 40px auto 60px;
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.avatar-big {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff0f3;
+    box-shadow: 0 5px 15px rgba(255, 133, 162, 0.3);
+}
+
+.profile-form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 800;
+    color: #ff85a2;
+    font-size: 14px;
+}
+
+.profile-input {
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14.5px;
+    transition: 0.3s;
+    outline: none;
+}
+
+.profile-input:focus {
+    border-color: #ff85a2;
+    background: #fffafa;
+}
+
+.profile-input:disabled {
+    background: #f9f9f9;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.btn-save-profile {
+    background: #ff85a2;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-save-profile:hover {
+    background: #ff5c8a;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 133, 162, 0.4);
+}
+
+/* Dark Mode cho Profile */
+body.dark-mode .profile-container { background: #1a1a2e; }
+body.dark-mode .profile-input { background: #0f0f16; border-color: #2a2a35; color: #fff; }
+body.dark-mode .profile-input:disabled { color: #555; }
+body.dark-mode .avatar-big { border-color: #2a2a35; }
+
+/* --- HỆ THỐNG TAB TRONG PROFILE --- */
+.profile-tabs {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff0f3;
+    border: 1px solid #ffe0e9;
+}
+
+.p-tab-btn {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-weight: 800;
+    cursor: pointer;
+    color: #ff85a2;
+    transition: 0.3s;
+    font-size: 14.5px;
+}
+
+.p-tab-btn.active {
+    background: #ff85a2;
+    color: #fff;
+}
+
+.p-tab-content {
+    display: none;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn 0.4s;
+}
+
+.p-tab-content.active {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Nút vùng nguy hiểm (Xóa tài khoản) */
+.btn-danger {
+    background: transparent;
+    border: 2px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Nunito', sans-serif;
+}
+
+.btn-danger:hover {
+    background: #ff4d4d;
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+}
+
+.btn-outline-dark {
+    background: transparent;
+    border: 2px solid #555;
+    color: #555;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-outline-dark:hover { background: #555; color: #fff; }
+
+/* Dark Mode cho Tabs */
+body.dark-mode .profile-tabs { background: #2a2a35; border-color: #333; }
+body.dark-mode .p-tab-btn { color: #aaa; }
+body.dark-mode .p-tab-btn.active { background: #ff85a2; color: #1a1a2e; }
+body.dark-mode .btn-outline-dark { border-color: #888; color: #888; }
+body.dark-mode .btn-outline-dark:hover { background: #888; color: #1a1a2e; }
+
+/* =========================================
+   11. GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE)
    ========================================= */
 
 @media screen and (max-width: 768px) {
