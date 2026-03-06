@@ -228,7 +228,7 @@
                 if (!user) {
                     window.location.href = 'login.html';
                 } else if (!ADMIN_EMAILS.includes(user.email)) {
-                    alert("Khu vực cấm! Cậu không có quyền truy cập vào đây nha ❌");
+                    showPopup("Khu vực cấm! Cậu không có quyền truy cập vào đây nha ❌");
                     window.location.href = 'index.html';
                 } else {
                     console.log("Welcome back, Chủ tịch Lam Chi! 👑");
