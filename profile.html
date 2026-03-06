@@ -53,6 +53,8 @@
                         <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
                         <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
                         <div class="dropdown-divider"></div>
+                        <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.location.href='admin.html'">🛠️ Đăng phim (Admin)</div>
+                        <div class="dropdown-divider"></div>
                         <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
                     </div>
                 </div>
@@ -258,6 +260,11 @@
             document.body.classList.add('dark-mode');
         }
 
+        // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+        const ADMIN_EMAILS = [
+            "miyazakiharuto64@gmail.com"
+        ];
+
         onAuthStateChanged(auth, (user) => {
             const btnTheme = document.getElementById('btn-theme-toggle'); 
             if (user) {
@@ -279,6 +286,16 @@
                     }
                 }
                 
+                // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
+                const adminBtn = document.getElementById('admin-panel-btn');
+                if (adminBtn) {
+                    if (ADMIN_EMAILS.includes(user.email)) {
+                        adminBtn.style.display = 'block'; // Đúng Email -> Hiện nút Admin
+                    } else {
+                        adminBtn.style.display = 'none'; // Sai Email -> Giấu đi
+                    }
+                }
+
                 // DATA RIÊNG CHO FORM PROFILE
                 document.getElementById('profile-email').value = user.email;
                 document.getElementById('profile-name').value = user.displayName || "";

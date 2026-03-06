@@ -78,6 +78,8 @@
                         <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
                         <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
                         <div class="dropdown-divider"></div>
+                        <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.location.href='admin.html'">🛠️ Đăng phim (Admin)</div>
+                        <div class="dropdown-divider"></div>
                         <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
                     </div>
                 </div>
@@ -176,6 +178,11 @@
         let currentPage = 1;
         const itemsPerPage = 5;
 
+        // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+        const ADMIN_EMAILS = [
+            "miyazakiharuto64@gmail.com"
+        ];
+
         onAuthStateChanged(auth, async (user) => {
             const btnTheme = document.getElementById('btn-theme-toggle'); 
             if (!user) {
@@ -196,6 +203,16 @@
             document.getElementById('bell-container').style.display = 'block';
             document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
             if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
+
+            // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
+            const adminBtn = document.getElementById('admin-panel-btn');
+            if (adminBtn) {
+                if (ADMIN_EMAILS.includes(user.email)) {
+                    adminBtn.style.display = 'block'; 
+                } else {
+                    adminBtn.style.display = 'none'; 
+                }
+            }
 
             // Load thông báo cho Dropdown nhỏ (Trên Navbar)
             if (typeof loadNotifications === "function") loadNotifications();

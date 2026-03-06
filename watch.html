@@ -67,6 +67,8 @@
                         <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
                         <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
                         <div class="dropdown-divider"></div>
+                        <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.location.href='admin.html'">🛠️ Đăng phim (Admin)</div>
+                        <div class="dropdown-divider"></div>
                         <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
                     </div>
                 </div>
@@ -396,6 +398,11 @@
 
             // 3. --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP ---
             onAuthStateChanged(auth, (user) => {
+                // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+                const ADMIN_EMAILS = [
+                    "miyazakiharuto64@gmail.com", 
+                    "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
+                ];
                 const btnTheme = document.getElementById('btn-theme-toggle'); 
                 if (user) {
                     if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
@@ -417,6 +424,17 @@
                             avtElement.style.display = 'none'; 
                         }
                     }
+
+                    // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
+                    const adminBtn = document.getElementById('admin-panel-btn');
+                    if (adminBtn) {
+                        if (ADMIN_EMAILS.includes(user.email)) {
+                            adminBtn.style.display = 'flex'; // Đúng Email -> Mở khóa nút Admin
+                        } else {
+                            adminBtn.style.display = 'none'; // Sai Email -> Giấu biệt tăm
+                        }
+                    }
+                    
                     // Kích hoạt chuông thông báo
                     if (typeof loadNotifications === "function") loadNotifications();
                 } else {

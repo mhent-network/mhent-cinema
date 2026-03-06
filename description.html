@@ -55,6 +55,8 @@
                         <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
                         <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
                         <div class="dropdown-divider"></div>
+                        <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.location.href='admin.html'">🛠️ Đăng phim (Admin)</div>
+                        <div class="dropdown-divider"></div>
                         <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
                     </div>
                 </div>
@@ -331,6 +333,11 @@
             if (localStorage.getItem('mhent_dark_mode') === 'on') { document.body.classList.add('dark-mode'); }
 
             onAuthStateChanged(auth, (user) => {
+                // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
+                const ADMIN_EMAILS = [
+                    "miyazakiharuto64@gmail.com", 
+                    "email_du_phong_cua_lam_chi@gmail.com" // Cậu có thể thêm bao nhiêu email admin tùy thích
+                ];
                 const btnTheme = document.getElementById('btn-theme-toggle'); 
                 if (user) {
                     if(document.getElementById('btn-login')) document.getElementById('btn-login').style.display = 'none';
@@ -338,14 +345,31 @@
                     if(document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'flex';
                     if(document.getElementById('bell-container')) document.getElementById('bell-container').style.display = 'block';
 
+                    // Gắn Tên
                     let finalName = user.displayName || user.email.split('@')[0];
                     if(document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
 
+                    // Gắn Ảnh
                     const avtElement = document.getElementById('user-avatar');
                     if(avtElement) {
-                        if (user.photoURL) { avtElement.src = user.photoURL; avtElement.style.display = 'block'; 
-                        } else { avtElement.style.display = 'none'; }
+                        if (user.photoURL) {
+                            avtElement.src = user.photoURL;
+                            avtElement.style.display = 'block'; 
+                        } else {
+                            avtElement.style.display = 'none'; 
+                        }
                     }
+
+                    // 👑 KIỂM TRA QUYỀN ADMIN Ở ĐÂY
+                    const adminBtn = document.getElementById('admin-panel-btn');
+                    if (adminBtn) {
+                        if (ADMIN_EMAILS.includes(user.email)) {
+                            adminBtn.style.display = 'flex'; // Đúng Email -> Mở khóa nút Admin
+                        } else {
+                            adminBtn.style.display = 'none'; // Sai Email -> Giấu biệt tăm
+                        }
+                    }
+                    
                     if (typeof loadNotifications === "function") loadNotifications();
 
                     // --- BỔ SUNG: CHECK XEM PHIM NÀY ĐÃ LƯU CHƯA ĐỂ ĐỔI MÀU NÚT ---

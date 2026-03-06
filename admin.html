@@ -432,6 +432,27 @@
             window.closePopup = function() {
                 document.getElementById('custom-popup').style.display = 'none';
             };
+
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+            // ... (Các import khác của trang admin)
+
+            const auth = getAuth(app);
+            const ADMIN_EMAILS = ["miyazakiharuto64@gmail.com"]; // Copy y chang cái mảng bên kia qua
+
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    // Chưa đăng nhập -> Đá ra trang login
+                    window.location.href = 'login.html';
+                } else if (!ADMIN_EMAILS.includes(user.email)) {
+                    // Có đăng nhập nhưng KHÔNG PHẢI ADMIN -> Đá về trang chủ
+                    alert("Khu vực cấm! Cậu không có quyền truy cập vào đây nha ❌");
+                    window.location.href = 'index.html';
+                } else {
+                    // LÀ ADMIN CHÍNH HIỆU -> Hiển thị nội dung trang Admin
+                    console.log("Welcome back, Chủ tịch Lam Chi! 👑");
+                    // Ở đây cậu gọi các hàm load dữ liệu của trang Admin nhé
+                }
+            });
         </script>
     </body>
 </html>
