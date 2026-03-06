@@ -93,14 +93,13 @@
                         <div class="cinema-tools">
                             <div class="tools-top">
                                 <span style="font-weight: bold; color: #888;">MHEnt. - Hệ thống:</span>
-                                <button id="btn-light-toggle" class="tool-btn" onclick="toggleCinemaMode()">💡 Tắt đèn</button>
                             </div>
                             
                             <div class="server-list-mini">
                                 <span class="server-label">Nguồn phát:</span>
                                 <button id="btn-server-vip" class="server-btn-mini active" onclick="changeServer('linkVIP')">✨ VIP (Nhanh)</button>
-                                <button id="btn-server-dp" class="server-btn-mini" onclick="changeServer('linkDuPhong')">📺 Archive (Dự phòng)</button>
-                                <button id="btn-server-dp2" class="server-btn-mini" onclick="changeServer('linkDuPhong2')">🛡️ Vk (Dự phòng)</button>
+                                <button id="btn-server-dp" class="server-btn-mini" onclick="changeServer('linkDuPhong')">📺 Dự phòng 1</button>
+                                <button id="btn-server-dp2" class="server-btn-mini" onclick="changeServer('linkDuPhong2')">🛡️ Dự phòng 2</button>
                             </div>
                         </div>
                     </div> 
@@ -209,14 +208,32 @@
 
                             renderButtons();
 
-                            // Khôi phục Trí Nhớ
+                            // Khôi phục Trí Nhớ & Đọc URL (CODE MỚI ĐÃ FIX)
                             let startEp = 0; 
                             if (window.currentMovieData.type === 'series') {
                                 let localKey = 'mhent_' + window.currentMovieId + '_last_ep';
-                                let savedEp = localStorage.getItem(localKey);
-                                if (savedEp !== null) {
-                                    startEp = parseInt(savedEp);
-                                    if (startEp >= window.currentMovieData.episodes.length || startEp < 0) startEp = 0;
+                                
+                                // 1. Kiểm tra xem có số tập (?ep=...) truyền từ link URL vào không
+                                let epFromURL = urlParams.get('ep');
+                                
+                                if (epFromURL !== null) {
+                                    // Nếu có truyền từ URL (Fan bấm từ danh sách tập) -> Ưu tiên dùng số này
+                                    startEp = parseInt(epFromURL);
+                                    
+                                    // Lưu ngược số này vào trí nhớ luôn để lần sau xem tiếp
+                                    localStorage.setItem(localKey, startEp);
+                                    
+                                } else {
+                                    // 2. Nếu không có URL (Fan bấm nút "Tiếp tục xem") -> Lôi từ trí nhớ ra
+                                    let savedEp = localStorage.getItem(localKey);
+                                    if (savedEp !== null) {
+                                        startEp = parseInt(savedEp);
+                                    }
+                                }
+
+                                // Bảo vệ: Tránh trường hợp số tập bị âm hoặc lớn hơn tổng số tập hiện có
+                                if (startEp >= window.currentMovieData.episodes.length || startEp < 0) {
+                                    startEp = 0; 
                                 }
                             }
 
@@ -326,28 +343,6 @@
                 } else {
                     container.classList.add('expanded');
                     btn.innerText = "Thu gọn";
-                }
-            };
-
-            // === HÀM TẮT/BẬT ĐÈN XEM PHIM (CINEMA MODE) ===
-            window.toggleCinemaMode = function() {
-                const overlay = document.getElementById('cinema-overlay');
-                const videoBox = document.querySelector('.video-box');
-                
-                // ĐẢM BẢO NÚT CỦA CẬU TRONG HTML PHẢI CÓ id="btn-light-toggle" NHÉ!
-                const lightBtn = document.getElementById('btn-light-toggle'); 
-
-                if(overlay && videoBox) {
-                    overlay.classList.toggle('active');
-                    videoBox.classList.toggle('lights-off');
-
-                    if(lightBtn) {
-                        if(overlay.classList.contains('active')) {
-                            lightBtn.innerHTML = '💡 Bật đèn';
-                        } else {
-                            lightBtn.innerHTML = '💡 Tắt đèn';
-                        }
-                    }
                 }
             };
 

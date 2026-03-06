@@ -196,7 +196,7 @@
                                     
                                     movieInfo.episodes.forEach((ep, index) => {
                                         episodeListHTML += `
-                                            <a href="watch.html?id=${movieId}&ep=${index}" class="ep-list-item">
+                                            <a onclick="window.location.href='watch.html?id=${movieId}&ep=${index}'" style="cursor: pointer;" class="ep-list-item">
                                                 <div class="ep-item-left">
                                                     <span class="ep-name">${ep.title}</span>
                                                     <span class="ep-subtext">👤 MHEnt. Subteam</span>
