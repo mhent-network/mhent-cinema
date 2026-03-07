@@ -41,7 +41,10 @@
                 <span class="logo-name">MHEnt. - Cinema</span>
             </a>
         </div>
-        <ul class="nav-links">
+
+        <div class="menu-toggle" onclick="toggleMobileMenu()">☰</div>
+
+        <ul class="nav-links" id="nav-links">
             <li><a onclick="window.location.href='index.html'" style="cursor: pointer;">Trang chủ</a></li>
             <li><a onclick="window.location.href='index.html#phim-dang-chieu'" style="cursor: pointer;">Danh sách Phim</a></li>
             <li><a onclick="window.location.href='about.html'" style="cursor: pointer;">Về chúng tớ</a></li>
@@ -400,6 +403,14 @@
         };
         
         window.markAllAsRead = window.markAllAsReadFull; 
+
+        // HÀM BẬT/TẮT MENU TRÊN ĐIỆN THOẠI
+            window.toggleMobileMenu = function() {
+                const navLinks = document.getElementById('nav-links');
+                if(navLinks) {
+                    navLinks.classList.toggle('active');
+                }
+            };
     </script>
 </body>
 </html>
