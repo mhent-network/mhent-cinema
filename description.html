@@ -17,54 +17,54 @@
                 </a>
             </div>
 
-            <div class="menu-toggle" onclick="toggleMobileMenu()">☰</div>
-
             <ul class="nav-links" id="nav-links">
                 <li><a onclick="window.location.href='index.html'" style="cursor: pointer;">Trang chủ</a></li>
                 <li><a onclick="window.location.href='index.html#phim-dang-chieu'" style="cursor: pointer;">Danh sách Phim</a></li>
                 <li><a onclick="window.location.href='about.html'" style="cursor: pointer;">Về chúng tớ</a></li>
-                
-                <li class="user-section">
-                <div id="bell-container" style="display: none; position: relative;">
-                    <div class="notif-bell" onclick="toggleNotif()" style="cursor: pointer;">
-                        🔔 <span class="notif-dot"></span>
-                    </div>
-                    <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
-                        <div class="notif-header">
-                            <span class="notif-title-text">Thông báo</span>
-                            <span class="notif-mark-read" onclick="markAllAsRead()">Đánh dấu tất cả là đã đọc</span>
-                        </div>
-                        <div id="notif-list" class="notif-body">
-                            </div>
-                        <div class="notif-footer">
-                            <button class="btn-view-all" onclick="window.location.href='notification.html'">Xem tất cả ></button>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="btn-theme-toggle" class="btn-theme" onclick="toggleDarkMode()" title="Tắt/Mở đèn">🌓</button>
-
-                <button id="btn-login" class="btn-login">Đăng nhập</button>
-
-                <div id="user-profile" class="user-profile" style="position: relative; display: none;">
-                    <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <img id="user-avatar" src="" alt="User" class="user-avatar">
-                        <span id="user-name" class="user-name">Tên User</span>
-                    </div>
-                    
-                    <div id="dropdown-account" class="dropdown-menu account-dropdown">
-                        <div class="dropdown-item" onclick="window.location.href='profile.html#info'">👤 Hồ sơ</div>
-                        <div class="dropdown-item" onclick="window.location.href='library.html'">⭐ Thư viện</div>
-                        <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
-                        <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
-                        <div class="dropdown-divider"></div>
-                        <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.location.href='admin.html'">🛠️ Đăng phim (Admin)</div>
-                        <div class="dropdown-divider"></div>
-                        <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
-                    </div>
-                </div>
-            </li>
             </ul>
+
+            <div class="nav-right">
+                <div class="user-section">
+                    <div id="bell-container" style="display: none; position: relative;">
+                        <div class="notif-bell" onclick="toggleNotif()" style="cursor: pointer;">
+                            🔔 <span class="notif-dot"></span>
+                        </div>
+                        <div id="dropdown-notif" class="dropdown-menu notif-dropdown">
+                            <div class="notif-header">
+                                <span class="notif-title-text">Thông báo</span>
+                                <span class="notif-mark-read" onclick="markAllAsRead()">Đánh dấu tất cả là đã đọc</span>
+                            </div>
+                            <div id="notif-list" class="notif-body"></div>
+                            <div class="notif-footer">
+                                <button class="btn-view-all" onclick="window.location.href='notification.html'">Xem tất cả ></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-theme-toggle" class="btn-theme" onclick="toggleDarkMode()" title="Tắt/Mở đèn">🌓</button>
+                    <button id="btn-login" class="btn-login">Đăng nhập</button>
+
+                    <div id="user-profile" class="user-profile" style="position: relative; display: none;">
+                        <div onclick="toggleAccount()" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <img id="user-avatar" src="" alt="User" class="user-avatar">
+                            <span id="user-name" class="user-name">Tên User</span>
+                        </div>
+                        
+                        <div id="dropdown-account" class="dropdown-menu account-dropdown">
+                            <div class="dropdown-item" onclick="window.location.href='profile.html#info'">👤 Hồ sơ</div>
+                            <div class="dropdown-item" onclick="window.location.href='library.html'">⭐ Thư viện</div>
+                            <div class="dropdown-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
+                            <div class="dropdown-item" onclick="window.location.href='profile.html#settings'">⚙️ Cài đặt</div>
+                            <div class="dropdown-divider"></div>
+                            <div id="admin-panel-btn" class="dropdown-item" style="display: none; color: #28a745 !important;" onclick="window.open('admin.html', '_blank')">🛠️ Đăng phim (Admin)</div>
+                            <div class="dropdown-divider"></div>
+                            <div id="btn-logout" class="dropdown-item" style="color: #ff5c8a !important;">🚪 Đăng xuất</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-toggle" onclick="toggleMobileMenu()">☰</div>
+            </div>
         </nav>
 
         <div class="back-btn-wrapper">
@@ -307,8 +307,12 @@
             const btnLogout = document.getElementById('btn-logout');
 
             if (btnLogin) btnLogin.addEventListener('click', () => { window.location.href = 'login.html'; });
-            if (btnLogout) btnLogout.addEventListener('click', async () => { await signOut(auth); });
-
+            if (btnLogout) { 
+                btnLogout.addEventListener('click', async () => { 
+                    await signOut(auth); 
+                    window.location.href = 'index.html'; // Lệnh đá văng về trang chủ
+                }); 
+            }
             window.toggleAccount = function() {
                 const acc = document.getElementById('dropdown-account');
                 const notif = document.getElementById('dropdown-notif');
