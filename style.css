@@ -441,53 +441,77 @@ body.dark-mode .btn-outline-dark:hover { background: #888; color: #1a1a2e; }
 
 @media screen and (max-width: 768px) {
     .navbar { padding: 10px 15px; }
-    
-    /* Hiện nút 3 gạch */
     .menu-toggle { display: block; font-size: 26px; margin-left: 5px; }
     
-    /* Biến Menu ngang thành Menu Dropdown (Giống bản vẽ) */
+    /* 🌟 BIẾN MENU MOBILE THÀNH DROPDOWN "HỆ SINH THÁI" 🌟 */
     .nav-links {
-        display: none; 
+        display: flex; 
         flex-direction: column;
         position: absolute;
-        top: 60px; 
-        right: 15px; /* Neo menu ở góc phải */
-        width: 180px; /* Menu nhỏ gọn không chiếm hết màn hình */
-        background-color: #ffffff;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        border-radius: 12px;
-        padding: 10px 0;
-        z-index: 999;
+        top: 55px; /* Cho độ cao bằng với dropdown kia */
+        right: 15px; 
+        width: 180px; 
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 133, 162, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 8px 0;
         margin: 0;
+        z-index: 1000;
+        /* Hiệu ứng trượt và mờ giống Dropdown User */
+        visibility: hidden; opacity: 0; transform: translateY(-15px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
     }
-    body.dark-mode .nav-links { background-color: #1a1a2e; border: 1px solid #2a2a35; }
+
+    /* Nút tam giác chĩa lên cho đồng bộ */
+    .nav-links::before {
+        content: ''; position: absolute; top: -6px; right: 18px; width: 12px; height: 12px; 
+        background: #ffffff; transform: rotate(45deg); 
+        border-top: 1px solid rgba(255, 133, 162, 0.2); border-left: 1px solid rgba(255, 133, 162, 0.2); z-index: -1;
+    }
+
+    /* Khi bấm nút 3 gạch thì thả xuống */
+    .nav-links.active {
+        visibility: visible; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+    } 
+
+    /* Căn chỉnh từng nút bấm giống y hệt .dropdown-item */
+    .nav-links li { width: 100%; margin: 0; }
+    .nav-links a { 
+        position: relative; display: block; padding: 10px 20px; 
+        color: #555 !important; font-size: 14px; font-weight: 800; 
+        transition: 0.3s ease; text-align: left; overflow: hidden;
+    }
     
-    .nav-links.active { display: flex; } 
-    .nav-links li { width: 100%; text-align: center; margin: 8px 0; padding: 5px 0; }
-    
+    /* Vạch hồng bên trái khi chạm vào */
+    .nav-links a::before {
+        content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 4px; 
+        background: #ff85a2; border-radius: 0 4px 4px 0; transform: scaleY(0); transition: 0.2s ease;
+    }
+    .nav-links a:hover { color: #ff85a2 !important; padding-left: 28px; background: transparent; }
+    .nav-links a:hover::before { transform: scaleY(1); }
+
+    /* Dark Mode cho Menu Mobile */
+    body.dark-mode .nav-links { background: rgba(26, 26, 46, 0.95); border-color: #2a2a35; }
+    body.dark-mode .nav-links::before { background: #1a1a2e; border-color: #2a2a35; }
+    body.dark-mode .nav-links a { color: #e0e0e0 !important; }
+    body.dark-mode .nav-links a:hover { background: rgba(255, 255, 255, 0.05) !important; color: #ff85a2 !important; }
+
     /* Ép Logo, Avatar, Chuông nằm ngang trên cùng */
     .nav-right { gap: 8px; }
     .user-section { gap: 10px; margin: 0; padding: 0; border: none; }
     
     /* 🌟 MAGIC TRICK: LOGIC ẨN HIỆN AVATAR/TÊN 🌟 */
-    .user-name { display: none; } /* Mặc định giấu Tên trên đt cho gọn */
-    /* Nếu avatar bị ẩn (style="display: none"), thì tự động hiển thị Tên */
-    .user-avatar[style*="display: none"] + .user-name { 
-        display: block; 
-        max-width: 80px; 
-    } 
+    .user-name { display: none; } 
+    .user-avatar[style*="display: none"] + .user-name { display: block; max-width: 80px; } 
 
     /* CĂN CHỈNH LẠI CÁC THÀNH PHẦN KHÁC */
-    .movie-section, .watch-container, .about-container, .details-container, .back-btn-wrapper { 
-        width: 95%; 
-        padding: 20px 15px; 
-    }
+    .movie-section, .watch-container, .about-container, .details-container, .back-btn-wrapper { width: 95%; padding: 20px 15px; }
     .watch-layout { flex-direction: column; gap: 20px; }
     .video-section, .episode-sidebar { width: 100%; flex: none; }
     .info-footer-container, .details-container { flex-direction: column; align-items: center; text-align: center; gap: 20px; }
     .poster-watch-fix, .poster-big { width: 180px; margin: 0 auto; }
-    
-    /* Giấu chữ MHEnt chừa chỗ cho Avatar */
     .logo-name { display: none; } 
     .nav-left img { width: 35px; height: 35px; }
     .project-card { width: 100%; }

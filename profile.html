@@ -256,13 +256,31 @@
         };
 
         window.onclick = function(event) {
-            if (!event.target.closest('.user-section') && !event.target.closest('.cinema-overlay')) {
+                // Đóng menu User & Chuông
+                if (!event.target.closest('.user-section') && !event.target.closest('.cinema-overlay') && !event.target.closest('.modal')) {
+                    const acc = document.getElementById('dropdown-account');
+                    const notif = document.getElementById('dropdown-notif');
+                    if(acc) acc.classList.remove('show');
+                    if(notif) notif.classList.remove('show');
+                }
+                
+                // THÊM: Bấm ra ngoài là đóng luôn Menu Mobile
+                if (!event.target.closest('.menu-toggle') && !event.target.closest('#nav-links')) {
+                    const navLinks = document.getElementById('nav-links');
+                    if(navLinks) navLinks.classList.remove('active');
+                }
+            };
+
+            // Ép Menu Mobile phải nhường đường nếu Mở User/Chuông và ngược lại
+            window.toggleMobileMenu = function() {
+                const navLinks = document.getElementById('nav-links');
                 const acc = document.getElementById('dropdown-account');
                 const notif = document.getElementById('dropdown-notif');
-                if(acc) acc.classList.remove('show');
-                if(notif) notif.classList.remove('show');
-            }
-        };
+                
+                if(acc) acc.classList.remove('show'); 
+                if(notif) notif.classList.remove('show'); 
+                if(navLinks) navLinks.classList.toggle('active');
+            };
 
         window.toggleDarkMode = function() {
             document.body.classList.toggle('dark-mode');

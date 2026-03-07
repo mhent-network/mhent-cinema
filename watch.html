@@ -207,14 +207,6 @@
                                 document.getElementById('footer-poster').src = window.currentMovieData.poster;
                             }
 
-                            // Xử lý Phim lẻ ẩn thanh danh sách
-                            const sidebar = document.getElementById('sidebar-container');
-                            const videoSect = document.getElementById('video-section-container');
-                            if (window.currentMovieData.type === 'movie') {
-                                sidebar.style.display = 'none';
-                                videoSect.style.width = '100%'; 
-                            }
-
                             renderButtons();
 
                             // Khôi phục Trí Nhớ & Đọc URL (CODE MỚI ĐÃ FIX)
@@ -392,13 +384,30 @@
             };
 
             window.onclick = function(event) {
-                // Thêm ngoại lệ cho lớp rèm .cinema-overlay bên trang watch để không bị lỗi
-                if (!event.target.closest('.user-section') && !event.target.closest('.cinema-overlay')) {
+                // Đóng menu User & Chuông
+                if (!event.target.closest('.user-section') && !event.target.closest('.cinema-overlay') && !event.target.closest('.modal')) {
                     const acc = document.getElementById('dropdown-account');
                     const notif = document.getElementById('dropdown-notif');
                     if(acc) acc.classList.remove('show');
                     if(notif) notif.classList.remove('show');
                 }
+                
+                // THÊM: Bấm ra ngoài là đóng luôn Menu Mobile
+                if (!event.target.closest('.menu-toggle') && !event.target.closest('#nav-links')) {
+                    const navLinks = document.getElementById('nav-links');
+                    if(navLinks) navLinks.classList.remove('active');
+                }
+            };
+
+            // Ép Menu Mobile phải nhường đường nếu Mở User/Chuông và ngược lại
+            window.toggleMobileMenu = function() {
+                const navLinks = document.getElementById('nav-links');
+                const acc = document.getElementById('dropdown-account');
+                const notif = document.getElementById('dropdown-notif');
+                
+                if(acc) acc.classList.remove('show'); 
+                if(notif) notif.classList.remove('show'); 
+                if(navLinks) navLinks.classList.toggle('active');
             };
 
             // 2. --- DARK MODE TOÀN HỆ THỐNG ---
