@@ -123,7 +123,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // ⚡ 1. THÊM CÁC HÀM CACHE VÀ SETDOC CỦA FIRESTORE
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -134,9 +135,14 @@
             messagingSenderId: "57034885937",
             appId: "1:57034885937:web:6bd152b44a6f43c17d3e10"
         };
+        
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // ⚡ 2. BẬT BỘ NHỚ ĐỆM SIÊU TỐC
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+        });
 
         // --- Lõi Navbar Cơ Bản ---
         const btnLogin = document.getElementById('btn-login');
@@ -177,16 +183,13 @@
         let allNotifs = [];
         let currentPage = 1;
         const itemsPerPage = 5;
+        let globalReadHistory = {}; // Biến RAM lưu trí nhớ đám mây tạm thời
 
-        // --- DANH SÁCH EMAIL ADMIN QUYỀN LỰC ---
-        const ADMIN_EMAILS = [
-            "miyazakiharuto64@gmail.com"
-        ];
+        const ADMIN_EMAILS = ["miyazakiharuto64@gmail.com"];
 
         onAuthStateChanged(auth, async (user) => {
             const btnTheme = document.getElementById('btn-theme-toggle'); 
             
-            // XỬ LÝ NẾU CHƯA ĐĂNG NHẬP
             if (!user) {
                 document.getElementById('btn-login').style.display = 'flex';
                 if(btnTheme) btnTheme.style.display = 'flex'; 
@@ -198,24 +201,16 @@
                 return;
             }
 
-            // XỬ LÝ NẾU ĐÃ ĐĂNG NHẬP
             document.getElementById('btn-login').style.display = 'none';
             if(btnTheme) btnTheme.style.display = 'none'; 
             document.getElementById('user-profile').style.display = 'flex';
             document.getElementById('bell-container').style.display = 'block';
 
-            // Xử lý Tên An Toàn
             let finalName = "Khách";
-            if (user.displayName && user.displayName.trim() !== "") {
-                finalName = user.displayName;
-            } else if (user.email) {
-                finalName = user.email.split('@')[0];
-            }
-            if (document.getElementById('user-name')) {
-                document.getElementById('user-name').innerText = finalName;
-            }
+            if (user.displayName && user.displayName.trim() !== "") { finalName = user.displayName; } 
+            else if (user.email) { finalName = user.email.split('@')[0]; }
+            if (document.getElementById('user-name')) document.getElementById('user-name').innerText = finalName;
 
-            // Xử lý Avatar Dứt Khoát (Ẩn/Hiện)
             const avtElement = document.getElementById('user-avatar');
             if (avtElement) {
                 if (user.photoURL && user.photoURL.trim() !== "") {
@@ -227,19 +222,19 @@
                 }
             }
 
-            // Nút Admin
             const adminBtn = document.getElementById('admin-panel-btn');
-            if (adminBtn) {
-                adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
-            }
+            if (adminBtn) adminBtn.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none';
 
-            // Load thông báo cho Dropdown nhỏ
             if (typeof loadNotifications === "function") loadNotifications();
 
-            // Load dữ liệu cho trang chính
+            // Tải dữ liệu user & Phim
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
-            const savedMovies = (userSnap.exists() && userSnap.data().savedMovies) ? userSnap.data().savedMovies : [];
+            const userData = userSnap.exists() ? userSnap.data() : {};
+            const savedMovies = userData.savedMovies || [];
+            
+            // ☁️ KÉO TRÍ NHỚ TỪ MÂY XUỐNG RAM
+            globalReadHistory = userData.readHistory || {};
 
             if (savedMovies.length === 0) {
                 document.getElementById('full-notif-list').innerHTML = '<p style="padding: 40px; text-align: center; color: #888;">Cậu chưa có thông báo nào cả 🌵</p>';
@@ -258,30 +253,25 @@
             renderPage(); 
         });
 
-        // Hàm In trang
+        // ☁️ HÀM IN TRANG (Chạy từ RAM nên cực mượt)
         function renderPage() {
             const container = document.getElementById('full-notif-list');
             container.innerHTML = '';
-            const user = auth.currentUser;
-            let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-
+            
             let startIndex = (currentPage - 1) * itemsPerPage;
             let endIndex = startIndex + itemsPerPage;
             let pageItems = allNotifs.slice(startIndex, endIndex);
 
             pageItems.forEach(movie => {
-                // --- LOGIC ĐIỀU HƯỚNG THÔNG MINH ---
                 const hasEpisodes = movie.episodes && movie.episodes.length > 0;
                 const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
                 const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
                 
-                const targetUrl = hasEpisodes 
-                    ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` 
-                    : `description.html?id=${movie.id}`;
-                // ------------------------------------
+                const targetUrl = hasEpisodes ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` : `description.html?id=${movie.id}`;
 
                 let movieTime = movie.updatedAt || 0;
-                let isUnread = (!readHistory[movie.id] || readHistory[movie.id] < movieTime);
+                // Kiểm tra Đã đọc bằng biến RAM
+                let isUnread = (!globalReadHistory[movie.id] || globalReadHistory[movie.id] < movieTime);
                 const itemClass = isUnread ? "full-notif-item unread notif-item" : "full-notif-item notif-item";
 
                 const item = `
@@ -302,32 +292,114 @@
             document.getElementById('btn-next').disabled = currentPage === maxPage || pageItems.length === 0;
         }
 
-        // Nhận targetUrl và điều hướng
-        window.markAsReadAndGoFull = function(movieId, movieTime, targetUrl) {
+        // HÀM CHUYỂN TRANG
+        window.changePage = function(dir) {
+            let maxPage = Math.ceil(allNotifs.length / itemsPerPage) || 1;
+            currentPage += dir;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > maxPage) currentPage = maxPage;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Chuyển trang xong cuộn lên đầu
+        };
+
+        // ☁️ NHẬN CLICK -> ĐẨY LÊN MÂY
+        window.markAsReadAndGoFull = async function(movieId, movieTime, targetUrl) {
             const user = auth.currentUser;
-            let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-            readHistory[movieId] = movieTime;
-            localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
+            if(user) {
+                globalReadHistory[movieId] = movieTime; // Cập nhật RAM
+                try {
+                    await setDoc(doc(db, "users", user.uid), { readHistory: globalReadHistory }, { merge: true }); // Bắn lên mây
+                } catch (error) { console.error("Lỗi đồng bộ:", error); }
+            }
             window.location.href = targetUrl;
         };
 
-        window.markAllAsReadFull = function() {
+        // ☁️ ĐÁNH DẤU TẤT CẢ -> ĐẨY LÊN MÂY
+        window.markAllAsReadFull = async function() {
             const user = auth.currentUser;
-            let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-            allNotifs.forEach(movie => { readHistory[movie.id] = movie.updatedAt || 0; });
-            localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
-            renderPage(); 
+            if(!user) return;
             
-            // Xóa luôn cái chấm đỏ trên Navbar nếu bấm "Đánh dấu tất cả"
-            const dot = document.querySelector('.notif-dot');
-            if(dot) dot.style.display = 'none';
+            allNotifs.forEach(movie => { globalReadHistory[movie.id] = movie.updatedAt || 0; });
+            
+            try {
+                await setDoc(doc(db, "users", user.uid), { readHistory: globalReadHistory }, { merge: true });
+                renderPage(); // In lại trang để mất vạch đỏ
+                
+                const dot = document.querySelector('.notif-dot');
+                if(dot) dot.style.display = 'none';
+            } catch (error) { console.error("Lỗi đồng bộ tất cả:", error); }
         };
 
-        // Kéo thêm cái lõi Navbar load Notif cho Dropdown (Dùng chung cho toàn hệ thống)
+        // ==========================================
+        // 🔔 ĐỒNG BỘ CHUÔNG DROPDOWN NAVBAR CHO TRANG NÀY
+        // ==========================================
         window.loadNotifications = async function() {
-            // ... (Phần logic này đã nằm chung ở file JS ngoài hoặc có thể copy từ index.html qua nếu cậu muốn cái Chuông ở trang này cũng thả xuống được)
-            // Tuy nhiên vì đây là trang Xem tất cả rồi nên cái chuông trên Navbar cậu có thể để tĩnh cũng được.
-        }
+            const notifList = document.getElementById('notif-list');
+            const dot = document.querySelector('.notif-dot'); 
+            if(!notifList) return; 
+            
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.exists() ? userSnap.data() : {};
+                const savedMovies = userData.savedMovies || [];
+
+                if (savedMovies.length === 0) {
+                    notifList.innerHTML = '<p style="padding:15px; color:#888; text-align:center; font-size:13px;">Cậu chưa lưu phim nào. Hãy thêm vào Thư viện để tớ báo cho cậu nha! ⭐</p>';
+                    if(dot) dot.style.display = 'none';
+                    return;
+                }
+
+                const querySnapshot = await getDocs(collection(db, "movies"));
+                let myNotifMovies = [];
+                
+                querySnapshot.forEach(docSnap => {
+                    if (savedMovies.includes(docSnap.id)) {
+                        myNotifMovies.push({id: docSnap.id, ...docSnap.data()});
+                    }
+                });
+                
+                myNotifMovies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+                
+                let readHistory = userData.readHistory || {}; 
+                let hasUnread = false;
+                notifList.innerHTML = '';
+                
+                myNotifMovies.slice(0, 5).forEach(movie => {
+                    const hasEpisodes = movie.episodes && movie.episodes.length > 0;
+                    const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
+                    const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
+                    
+                    const targetUrl = hasEpisodes ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` : `description.html?id=${movie.id}`;
+                    let movieTime = movie.updatedAt || 0;
+                    let isUnread = false;
+
+                    if (!readHistory[movie.id] || readHistory[movie.id] < movieTime) {
+                        isUnread = true;
+                        hasUnread = true; 
+                    }
+
+                    const itemClass = isUnread ? "notif-item unread" : "notif-item";
+
+                    notifList.innerHTML += `
+                        <div class="${itemClass}" onclick="markAsReadAndGoFull('${movie.id}', ${movieTime}, '${targetUrl}')">
+                            <img src="${movie.poster}" class="notif-poster">
+                            <div class="notif-info">
+                                <div class="notif-title">${movie.title}</div>
+                                <div class="notif-desc">🎬 ${lastEpTitle}<br>Bấm để xem ngay!</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+            } catch (e) { console.error("Lỗi dropdown:", e); }
+        };
+        
+        window.markAllAsRead = window.markAllAsReadFull; 
     </script>
 </body>
 </html>

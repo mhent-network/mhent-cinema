@@ -83,8 +83,9 @@
     </footer>
 
     <script type="module">
+        // Thêm initializeFirestore và các hàm cache vào dòng import
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -97,8 +98,12 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         const auth = getAuth(app);
+
+        // ⚡ BẬT BỘ NHỚ ĐỆM SIÊU TỐC CHO ĐIỆN THOẠI (Thay thế const db = getFirestore(app);)
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+        });
 
         // ==========================================
         // 🌟 LÕI HỆ THỐNG DÙNG CHUNG (NAVBAR)
@@ -393,7 +398,7 @@
             });
 
             // ==========================================
-            // 🔔 HỆ THỐNG THÔNG BÁO V4 (ĐIỀU HƯỚNG THÔNG MINH)
+            // 🔔 HỆ THỐNG THÔNG BÁO V5 (ĐỒNG BỘ ĐÁM MÂY 100%)
             // ==========================================
             window.currentLoadedNotifs = [];
 
@@ -411,7 +416,8 @@
                 try {
                     const userRef = doc(db, "users", user.uid);
                     const userSnap = await getDoc(userRef);
-                    const savedMovies = (userSnap.exists() && userSnap.data().savedMovies) ? userSnap.data().savedMovies : [];
+                    const userData = userSnap.data() || {};
+                    const savedMovies = userData.savedMovies || [];
 
                     if (savedMovies.length === 0) {
                         notifList.innerHTML = '<p style="padding:15px; color:#888; text-align:center; font-size:13px;">Cậu chưa lưu phim nào. Hãy thêm vào Thư viện để tớ báo cho cậu nha! ⭐</p>';
@@ -431,24 +437,21 @@
                     myNotifMovies.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
                     window.currentLoadedNotifs = myNotifMovies; 
 
-                    let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
+                    // FIX LỖI: Lấy lịch sử trực tiếp từ Cloud, nếu chưa có thì là Object rỗng
+                    let readHistory = userData.readHistory || {}; 
                     let hasUnread = false;
                     notifList.innerHTML = '';
                     
                     myNotifMovies.slice(0, 5).forEach(movie => {
-                        // --- LOGIC ĐIỀU HƯỚNG THÔNG MINH NẰM Ở ĐÂY ---
                         const hasEpisodes = movie.episodes && movie.episodes.length > 0;
                         const lastEpTitle = hasEpisodes ? movie.episodes[movie.episodes.length - 1].title : "Vừa cập nhật hồ sơ mới!";
                         const lastEpIndex = hasEpisodes ? (movie.episodes.length - 1) : 0;
                         
-                        // Nếu có tập -> Bắn sang Watch. Nếu không có tập -> Bắn sang Description
-                        const targetUrl = hasEpisodes 
-                            ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` 
-                            : `description.html?id=${movie.id}`;
-                        // ---------------------------------------------
-
+                        const targetUrl = hasEpisodes ? `watch.html?id=${movie.id}&ep=${lastEpIndex}` : `description.html?id=${movie.id}`;
                         let movieTime = movie.updatedAt || 0;
                         let isUnread = false;
+
+                        // So sánh thời gian cập nhật của phim với thời gian đã đọc trên Cloud
                         if (!readHistory[movie.id] || readHistory[movie.id] < movieTime) {
                             isUnread = true;
                             hasUnread = true; 
@@ -456,8 +459,7 @@
 
                         const itemClass = isUnread ? "notif-item unread" : "notif-item";
 
-                        // Truyền thẳng cái link targetUrl vào hàm
-                        const item = `
+                        notifList.innerHTML += `
                             <div class="${itemClass}" onclick="markAsReadAndGo('${movie.id}', ${movieTime}, '${targetUrl}')">
                                 <img src="${movie.poster}" class="notif-poster">
                                 <div class="notif-info">
@@ -466,38 +468,47 @@
                                 </div>
                             </div>
                         `;
-                        notifList.innerHTML += item;
                     });
 
                     if (dot) dot.style.display = hasUnread ? 'block' : 'none';
 
-                } catch (e) { console.error("Lỗi:", e); }
+                } catch (e) { console.error("Lỗi Tải Thông Báo:", e); }
             };
 
-            // Hàm cập nhật trí nhớ và bay tới link tương ứng
-            window.markAsReadAndGo = function(movieId, movieTime, targetUrl) {
+            window.markAsReadAndGo = async function(movieId, movieTime, targetUrl) {
                 const user = auth.currentUser;
                 if(user) {
-                    let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-                    readHistory[movieId] = movieTime; 
-                    localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
+                    try {
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
+                        let readHistory = (userSnap.exists() && userSnap.data().readHistory) ? userSnap.data().readHistory : {};
+                        readHistory[movieId] = movieTime; 
+                        // Đẩy lên Đám Mây
+                        await setDoc(userRef, { readHistory: readHistory }, { merge: true });
+                    } catch (error) { console.error("Lỗi đồng bộ:", error); }
                 }
-                window.location.href = targetUrl; // Chạy theo link thông minh
+                window.location.href = targetUrl; 
             };
 
-            window.markAllAsRead = function() {
+            window.markAllAsRead = async function() {
                 const user = auth.currentUser;
                 if(!user || !window.currentLoadedNotifs) return;
 
-                let readHistory = JSON.parse(localStorage.getItem('mhent_notifs_' + user.uid)) || {};
-                window.currentLoadedNotifs.forEach(movie => {
-                    readHistory[movie.id] = movie.updatedAt || 0;
-                });
-                localStorage.setItem('mhent_notifs_' + user.uid, JSON.stringify(readHistory));
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+                    let readHistory = (userSnap.exists() && userSnap.data().readHistory) ? userSnap.data().readHistory : {};
 
-                document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
-                const dot = document.querySelector('.notif-dot');
-                if(dot) dot.style.display = 'none';
+                    window.currentLoadedNotifs.forEach(movie => {
+                        readHistory[movie.id] = movie.updatedAt || 0;
+                    });
+
+                    await setDoc(userRef, { readHistory: readHistory }, { merge: true });
+
+                    document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+                    const dot = document.querySelector('.notif-dot');
+                    if(dot) dot.style.display = 'none';
+                } catch (error) { console.error("Lỗi đồng bộ:", error); }
             };
 
             // BÙA CHÚ VÀ BACK TO TOP (Giữ nguyên)
